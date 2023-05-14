@@ -12,6 +12,7 @@ int health = 20;
 int food = 20;
 int armor = 13;
 int saturation = 1;
+float xpLevel = 0.7f;
 
 bool isKeyPressed = false;
 
@@ -25,8 +26,10 @@ void getAsyncInput()
     {
         if (!isKeyPressed)
         {
-            debugX--;
-            printf("x: %d y: %d\n", debugX, debugY);
+            //debugX--;
+            //printf("x: %d y: %d\n", debugX, debugY);
+            if (xpLevel > 0.0f)
+                xpLevel -= 0.1f;
         }
         isKeyPressed = true;
     }
@@ -39,8 +42,10 @@ void getAsyncInput()
     {
         if (!isKeyPressed)
         {
-            debugX++;
-            printf("x: %d y: %d\n", debugX, debugY);
+            //debugX++;
+            //printf("x: %d y: %d\n", debugX, debugY);
+            if (xpLevel < 1.0f)
+                xpLevel += 0.1f;
         }
         isKeyPressed = true;
     }
@@ -81,7 +86,7 @@ void getAsyncInput()
 int offset[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 int foodOffset[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* lastSystemTime, int health, int* lastHealth, int foodLevel, int armor, float xp, Texture2D widgets, Texture2D icons)
+void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* lastSystemTime, int health, int* lastHealth, int foodLevel, int armor, Texture2D widgets, Texture2D icons)
 {
     int centerX = GetScreenWidth() / 2;
     int bottomY = GetScreenHeight();
@@ -113,6 +118,30 @@ void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* l
 
         DrawTexturePro(icons, xpBar, xpDestRect, origin, 0, WHITE);
     }
+
+
+    // xp levels
+    if (xpLevel > 0.0f)
+    {
+        int length = (int)(xpLevel * 182.0f);
+        int xpHeight = 5;
+        Rectangle xpBar = { 0, 69, length, xpHeight };
+        Rectangle xpDestRect = {
+            centerX - hotbarWidth * sr / 2,
+            bottomY - xpHeight * sr - (hotbarHeight + 2) * sr,
+            length* sr,
+            xpHeight * sr
+        };
+        DrawTexturePro(icons, xpBar, xpDestRect, origin, 0, WHITE);
+
+        char s[20];
+        //sprintf(s, "%d", xpLevel);
+        int i1 = (GetScreenWidth() / sr - MeasureText("23", 64) / sr) / 2;
+        int j1 = GetScreenHeight() / sr - 31 - 4;
+        DrawText("23", (i1 + 1) * sr, j1 * sr, 64, LIGHTGRAY);
+    }
+
+
 
     // armor
     bool flag = *healthUpdateCounter > (long)*updateCounter && (*healthUpdateCounter - (long)*updateCounter) / 3L % 2L == 1L;
@@ -433,13 +462,15 @@ int main(void)
     //SetExitKey(0);
     bool exitWindow = false;
 
-    Texture2D widgets = LoadTexture("1.19.4/assets/minecraft/textures/gui/widgets.png");
-    Texture2D icons = LoadTexture("1.19.4/assets/minecraft/textures/gui/icons.png");
-    Texture2D background = LoadTexture("1.19.4/assets/minecraft/textures/gui/light_dirt_background.png");
+    Texture2D widgets = LoadTexture("res/1.19.4/assets/minecraft/textures/gui/widgets.png");
+    Texture2D icons = LoadTexture("res/1.19.4/assets/minecraft/textures/gui/icons.png");
+    Texture2D background = LoadTexture("res/1.19.4/assets/minecraft/textures/gui/light_dirt_background.png");
+    Font font = LoadFontEx("res/minecraft-font/MinecraftRegular-Bmg3.otf", 96, 0, 0);
+    SetTextureFilter(font.texture, TEXTURE_FILTER_POINT);
 
     //int health = 3;
     int lastHealth = health;
-    float xp = 0.73;
+    //float xp = 0.73;
     //int armor = 8;
 
     // intialize shake heart movement
@@ -507,9 +538,13 @@ int main(void)
         BeginDrawing();
         ClearBackground(BLANK);
 
-        renderHotbar(scaledResolution, &updateCounter, &healthUpdateCounter, &lastSystemTime, health, &lastHealth, food, armor, xp, widgets, icons);
+        renderHotbar(scaledResolution, &updateCounter, &healthUpdateCounter, &lastSystemTime, health, &lastHealth, food, armor, widgets, icons);
         //DrawText("Congrats! You created your first window!", 0, 0, 20, LIGHTGRAY);
         //DrawTexturePro(icons, heart, destRect, origin, 0, WHITE);
+       
+        char charList[] = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+        DrawTextEx(font, charList, (Vector2) { 20.0f, 100.0f }, 500, 1, WHITE);
+
         EndDrawing();
     }
 
@@ -518,6 +553,7 @@ int main(void)
     UnloadTexture(widgets);
     UnloadTexture(icons);
     UnloadTexture(background);
+    UnloadFont(font);
 
     return 0;
 }
