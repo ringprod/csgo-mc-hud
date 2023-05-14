@@ -8,6 +8,9 @@
 
 short GetAsyncKeyState(int vKey);
 
+Rectangle chars[128];
+int charWidths[256];
+
 int health = 20;
 int food = 20;
 int armor = 13;
@@ -444,6 +447,110 @@ void renderHotbarItem(int hotbarX, int hotbarY, float elapsedFrameTime/*, Entity
 {
     // todo
 }
+void readFontTexture(Texture2D texture)
+{
+    const int charWidth = 8;
+    const int charHeight = 8;
+    const int spacing = 0;
+
+    const int charsPerRow = 16;
+    const int charsPerCol = 128 / charsPerRow;
+
+
+    Image image = LoadImageFromTexture(texture);
+    Color* colors = LoadImageColors(image);
+
+    int lvt_4_1_ = texture.width;
+    int lvt_3_2_ = texture.height;
+    int lvt_6_1_ = lvt_4_1_ / 16;
+    int lvt_7_1_ = lvt_3_2_ / 16;
+    bool lvt_8_1_ = true;
+    float lvt_9_1_ = 8.0F / (float)lvt_7_1_;
+
+    for (int lvt_10_1_ = 0; lvt_10_1_ < 256; ++lvt_10_1_)
+    {
+        int j1 = lvt_10_1_ % 16;
+        int k1 = lvt_10_1_ / 16;
+
+        if (lvt_10_1_ == 32)
+        {
+            charWidths[lvt_10_1_] = 4;
+        }
+
+        int l1;
+
+        for (l1 = lvt_7_1_ - 1; l1 >= 0; --l1)
+        {
+            int i2 = j1 * lvt_7_1_ + l1;
+            bool flag1 = true;
+
+            for (int j2 = 0; j2 < lvt_6_1_ && flag1; ++j2)
+            {
+                int k2 = (k1 * lvt_7_1_ + j2) * lvt_3_2_;
+
+                if ((colors[i2 * texture.width + k2].a >> 24 & 255) != 0)
+                {
+                    flag1 = false;
+                }
+            }
+
+            if (!flag1)
+            {
+                break;
+            }
+        }
+
+        ++l1;
+        charWidths[lvt_10_1_] = (int)(0.5D + (double)((float)l1 * lvt_9_1_)) + 1;
+    }
+
+
+    UnloadImage(image);
+}
+
+#if 0
+void read1FontTexture(Texture2D texture)
+{
+    int charWidths[128];
+    for (int i = 0; i < 128; i++) {
+        int start = -1;
+        int end = -1;
+        for (int x = 0; x < font.width; x++) {
+            for (int y = i * charHeight; y < (i + 1) * charHeight; y++) {
+                if (font.data[y * font.width + x].a != 0) {
+                    if (start == -1) start = x;
+                    end = x;
+                }
+            }
+        }
+        if (start == -1) start = 0;
+        if (end == -1) end = charWidth;
+        charWidths[i] = end - start + 1;
+    }
+}
+#endif
+#if 0
+void drawMCText(Texture2D font, const char* str, int x, int y, float scale, Color color) {
+    for (int i = 0; i < strlen(str); i++) {
+        int charIndex = (int)str[i];
+        DrawTextureRec(font, chars[charIndex], (Vector2) { x + i * 8 * scale, y }, color);
+    }
+}
+#endif
+
+void drawMCText(Texture2D font, const char* str, int x, int y, float scale, Color color) {
+    for (int i = 0; i < strlen(str); i++) {
+        int charIndex = (int)str[i];
+        float charScale = scale * charWidths[charIndex] / 8;
+        Rectangle charRect = chars[charIndex];
+        Rectangle destRect = (Rectangle){ x, y, charWidths[charIndex] * scale, 8 * scale };
+        Vector2 origin = (Vector2){ charRect.width / 2, charRect.height / 2 };
+        DrawTexturePro(font, charRect, destRect, origin, 0, color);
+        x += charWidths[i] * scale;
+    }
+}
+
+
 
 int main(void)
 {
@@ -465,8 +572,10 @@ int main(void)
     Texture2D widgets = LoadTexture("res/1.19.4/assets/minecraft/textures/gui/widgets.png");
     Texture2D icons = LoadTexture("res/1.19.4/assets/minecraft/textures/gui/icons.png");
     Texture2D background = LoadTexture("res/1.19.4/assets/minecraft/textures/gui/light_dirt_background.png");
-    Font font = LoadFontEx("res/minecraft-font/MinecraftRegular-Bmg3.otf", 96, 0, 0);
-    SetTextureFilter(font.texture, TEXTURE_FILTER_POINT);
+    Font fonte = LoadFontEx("res/minecraft-font/MinecraftRegular-Bmg3.otf", 96, 0, 0);
+    Texture2D font = LoadTexture("res/1.19.4/assets/minecraft/textures/font/ascii.png");
+    SetTextureFilter(fonte.texture, TEXTURE_FILTER_POINT);
+    //SetTextureFilter(font.texture, TEXTURE_FILTER_POINT);
 
     //int health = 3;
     int lastHealth = health;
@@ -481,6 +590,27 @@ int main(void)
     // intialize shake hunger bar movement
     for (int count = 0; count < 10; count++) {
         foodOffset[count] = (GetScreenHeight() - 39 * scaledResolution) + rand() % 3 - 1;
+    }
+
+   // readFontTexture(font);
+
+    for (int row = 0; row < 16; row++) {
+        for (int col = 0; col < 16; col++) {
+            int index = row * 16 + col;
+            charWidths[index] = 8;
+            printf("%2d ", charWidths[index]);
+        }
+        printf("\n");
+    }
+
+
+    // mc font atlas
+    int spacing = 0;
+    for (int i = 0; i < 128; i++) {
+        chars[i].x = (i % 16) * (8 + spacing);
+        chars[i].y = (i / 16) * (8 + spacing);
+        chars[i].width = charWidths[i];
+        chars[i].height = 8;
     }
 
     double currentTime = GetTime();
@@ -542,8 +672,11 @@ int main(void)
         //DrawText("Congrats! You created your first window!", 0, 0, 20, LIGHTGRAY);
         //DrawTexturePro(icons, heart, destRect, origin, 0, WHITE);
        
-        char charList[] = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
-        DrawTextEx(font, charList, (Vector2) { 20.0f, 100.0f }, 500, 1, WHITE);
+        char charList[] = " !\\\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+
+        drawMCText(font, "test", 200, 200, 100, YELLOW);
+
+        //DrawTextEx(fonte, charList, (Vector2) { 20.0f, 500.0f }, 500, 1, RED);
 
         EndDrawing();
     }
@@ -553,7 +686,8 @@ int main(void)
     UnloadTexture(widgets);
     UnloadTexture(icons);
     UnloadTexture(background);
-    UnloadFont(font);
+    UnloadFont(fonte);
+    UnloadTexture(font);
 
     return 0;
 }
