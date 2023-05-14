@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <time.h>
+#include <string.h>
 
 #include "include/raylib.h"
 
@@ -10,29 +11,22 @@ short GetAsyncKeyState(int vKey);
 int health = 20;
 int food = 20;
 int armor = 13;
-int saturation = 14;
+int saturation = 1;
 
 bool isKeyPressed = false;
 
+int partialTicks = 0;
+
+int debugX = 0, debugY = 0;
+
 void getAsyncInput()
 {
-    if (GetAsyncKeyState(0x26) && 0x1)
-    {
-        printf("UP\n");
-    }
-    if (GetAsyncKeyState(0x28) && 0x1)
-    {
-        printf("DOWN\n");
-    }
-
     if (GetAsyncKeyState('A') & 0x1)
     {
         if (!isKeyPressed)
         {
-            if (food < 20)
-            {
-                food++;
-            }
+            debugX--;
+            printf("x: %d y: %d\n", debugX, debugY);
         }
         isKeyPressed = true;
     }
@@ -45,10 +39,8 @@ void getAsyncInput()
     {
         if (!isKeyPressed)
         {
-            if (food > 0)
-            {
-                food--;
-            }
+            debugX++;
+            printf("x: %d y: %d\n", debugX, debugY);
         }
         isKeyPressed = true;
     }
@@ -61,10 +53,8 @@ void getAsyncInput()
     {
         if (!isKeyPressed)
         {
-            if (health < 20)
-            {
-                health++;
-            }
+            debugY--;
+            printf("x: %d y: %d\n", debugX, debugY);
         }
         isKeyPressed = true;
     }
@@ -77,10 +67,8 @@ void getAsyncInput()
     {
         if (!isKeyPressed)
         {
-            if (health > 0)
-            {
-                health--;
-            }
+            debugY++;
+            printf("x: %d y: %d\n", debugX, debugY);
         }
         isKeyPressed = true;
     }
@@ -405,6 +393,27 @@ void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* l
     };
 
     DrawTexturePro(icons, crosshair, crosshairDestRect, origin, 0, WHITE);
+
+    // hotbar items
+    for (int l = 0; l < 9; ++l)
+    {
+        int i1 = (GetScreenWidth() / sr / 2 + (l * 20 + 3) - hotbarWidth/2) * sr;
+        int j1 = (GetScreenHeight() / sr - (16 - 3) - 5) * sr;
+        //renderHotbarItem(i1, j1, partialTicks/*, entityplayer, entityplayer.inventory.mainInventory.get(l)*/ );
+        Rectangle item = { 16, 54, 16, 16 };
+        Rectangle itemDestRect = {
+            i1,
+            j1,
+            16 * sr,
+            16 * sr
+        };
+        DrawTexturePro(icons, item, itemDestRect, origin, 0, WHITE);
+    }
+}
+
+void renderHotbarItem(int hotbarX, int hotbarY, float elapsedFrameTime/*, EntityPlayer player, ItemStack stack*/)
+{
+    // todo
 }
 
 int main(void)
@@ -473,6 +482,17 @@ int main(void)
                     offset[count] = rand() % 2 * scaledResolution;
                 }
             }
+
+            // just for right now to make saturation simpler
+            if (food <= 10)
+            {
+                saturation = 0;
+            }
+            else
+            {
+                saturation = 1;
+            }
+
             if (saturation == 0 && updateCounter % (food * 3 + 1) == 0)
             {
                 for (int count = 0; count < 10; count++) {
