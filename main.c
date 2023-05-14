@@ -7,8 +7,9 @@
 
 short GetAsyncKeyState(int vKey);
 
-int health = 0;
-int armor = 0;
+int health = 20;
+int food = 20;
+int armor = 13;
 
 bool isKeyPressed = false;
 
@@ -27,9 +28,9 @@ void getAsyncInput()
     {
         if (!isKeyPressed)
         {
-            if (armor < 20)
+            if (food < 20)
             {
-                armor++;
+                food++;
             }
         }
         isKeyPressed = true;
@@ -43,9 +44,9 @@ void getAsyncInput()
     {
         if (!isKeyPressed)
         {
-            if (armor > 0)
+            if (food > 0)
             {
-                armor--;
+                food--;
             }
         }
         isKeyPressed = true;
@@ -89,8 +90,9 @@ void getAsyncInput()
 }
 
 int offset[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+int foodOffset[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* lastSystemTime, int health, int* lastHealth, int armor, float xp, Texture2D widgets, Texture2D icons)
+void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* lastSystemTime, int health, int* lastHealth, int foodLevel, int armor, float xp, Texture2D widgets, Texture2D icons)
 {
     int centerX = GetScreenWidth() / 2;
     int bottomY = GetScreenHeight();
@@ -147,8 +149,10 @@ void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* l
 
     int j = *lastHealth;
     int i = health;
+    int k = foodLevel;
 
     int l = (GetScreenWidth() / 2 - 91 * sr);
+    int i1 = GetScreenWidth() / 2 + 91 * sr;
     int j1 = (GetScreenHeight() - 39 * sr);
 
     float f = 20.0f; // (float)iattributeinstance.getAttributeValue(); health?
@@ -285,7 +289,7 @@ void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* l
                 DrawTexturePro(icons, heart, heartDestRect, origin, 0, WHITE);
             }
         }
-
+        /* absorption logic
         if (l2 > 0)
         {
             if (l2 == k1 && k1 % 2 == 1)
@@ -298,7 +302,7 @@ void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* l
                 printf("%d %d %d %d %d %d \n", k4, l4, k5 + 144, 9 * i5, 9, 9);
                 l2 -= 2;
             }
-        }
+        }*/
 
         // full hearts
         if (j5 * 2 + 1 < i)
@@ -328,6 +332,64 @@ void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* l
             //printf("%d %d %d %d %d %d \n", k4, l4, k5 + 45, 9 * i5, 9, 9);
         }
 
+    }
+
+    // food
+
+    for (int l5 = 0; l5 < 10; ++l5)
+    {
+        int j6 = j1;
+        int l6 = 16;
+        int j7 = 0;
+
+        //if (*updateCounter % (k * 3 + 1) == 0)
+        if (k < 6)
+        {
+            j6 = foodOffset[l5];
+        }
+
+        int l7 = i1 - l5 * 8 * sr - 9 * sr;
+        //this.drawTexturedModalRect(l7, j6, 16 + j7 * 9, 27, 9, 9);
+        {
+            Rectangle food = { 16 + j7, 27, 9, 9 };
+            Rectangle foodDestRect = {
+                l7,
+                j6,
+                9 * sr,
+                9 * sr
+            };
+            DrawTexturePro(icons, food, foodDestRect, origin, 0, WHITE);
+        }
+
+        if (l5 * 2 + 1 < k)
+        {
+            //this.drawTexturedModalRect(l7, j6, l6 + 36, 27, 9, 9);
+            {
+                Rectangle food = { l6 + 36, 27, 9, 9 };
+                Rectangle foodDestRect = {
+                    l7,
+                    j6,
+                    9 * sr,
+                    9 * sr
+                };
+                DrawTexturePro(icons, food, foodDestRect, origin, 0, WHITE);
+            }
+        }
+
+        if (l5 * 2 + 1 == k)
+        {
+            //this.drawTexturedModalRect(l7, j6, l6 + 45, 27, 9, 9);
+            {
+                Rectangle food = { l6 + 45, 27, 9, 9 };
+                Rectangle foodDestRect = {
+                    l7,
+                    j6,
+                    9 * sr,
+                    9 * sr
+                };
+                DrawTexturePro(icons, food, foodDestRect, origin, 0, WHITE);
+            }
+        }
     }
 
 
@@ -361,7 +423,6 @@ int main(void)
     //SetExitKey(0);
     bool exitWindow = false;
 
-
     Texture2D widgets = LoadTexture("1.19.4/assets/minecraft/textures/gui/widgets.png");
     Texture2D icons = LoadTexture("1.19.4/assets/minecraft/textures/gui/icons.png");
     Texture2D background = LoadTexture("1.19.4/assets/minecraft/textures/gui/light_dirt_background.png");
@@ -370,6 +431,16 @@ int main(void)
     int lastHealth = health;
     float xp = 0.73;
     //int armor = 8;
+
+    // intialize shake heart movement
+    for (int count = 0; count < 10; count++) {
+        offset[count] = rand() % 2 * scaledResolution;
+    }
+
+    // intialize shake hunger bar movement
+    for (int count = 0; count < 10; count++) {
+        foodOffset[count] = (GetScreenHeight() - 39 * scaledResolution) + rand() % 3 - 1;
+    }
 
     double currentTime = GetTime();
     double accumulator = 0.0;
@@ -394,8 +465,17 @@ int main(void)
         while (accumulator >= timePerFrame)
         {
             //printf("Hello, world! %d\n", counter++);
-            for (int count = 0; count < 10; count++) {
-                offset[count] = rand() % 2 * scaledResolution;
+            if (health <= 4)
+            {
+                for (int count = 0; count < 10; count++) {
+                    offset[count] = rand() % 2 * scaledResolution;
+                }
+            }
+            if (updateCounter % (food * 3 + 1) == 0)
+            {
+                for (int count = 0; count < 10; count++) {
+                    foodOffset[count] = (GetScreenHeight() - 39 * scaledResolution) + rand() % 3 - 1;
+                }
             }
 
             accumulator -= timePerFrame;
@@ -405,7 +485,7 @@ int main(void)
         BeginDrawing();
         ClearBackground(BLANK);
 
-        renderHotbar(scaledResolution, &updateCounter, &healthUpdateCounter, &lastSystemTime, health, &lastHealth, armor, xp, widgets, icons);
+        renderHotbar(scaledResolution, &updateCounter, &healthUpdateCounter, &lastSystemTime, health, &lastHealth, food, armor, xp, widgets, icons);
         //DrawText("Congrats! You created your first window!", 0, 0, 20, LIGHTGRAY);
         //DrawTexturePro(icons, heart, destRect, origin, 0, WHITE);
         EndDrawing();
