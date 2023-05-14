@@ -10,6 +10,7 @@ short GetAsyncKeyState(int vKey);
 int health = 20;
 int food = 20;
 int armor = 13;
+int saturation = 14;
 
 bool isKeyPressed = false;
 
@@ -342,8 +343,8 @@ void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* l
         int l6 = 16;
         int j7 = 0;
 
-        //if (*updateCounter % (k * 3 + 1) == 0)
-        if (k < 6)
+        if (saturation == 0 && *updateCounter % (k * 3 + 1) == 0)
+        //if (k < 6)
         {
             j6 = foodOffset[l5];
         }
@@ -464,6 +465,7 @@ int main(void)
 
         while (accumulator >= timePerFrame)
         {
+            updateCounter++;
             //printf("Hello, world! %d\n", counter++);
             if (health <= 4)
             {
@@ -471,7 +473,7 @@ int main(void)
                     offset[count] = rand() % 2 * scaledResolution;
                 }
             }
-            if (updateCounter % (food * 3 + 1) == 0)
+            if (saturation == 0 && updateCounter % (food * 3 + 1) == 0)
             {
                 for (int count = 0; count < 10; count++) {
                     foodOffset[count] = (GetScreenHeight() - 39 * scaledResolution) + rand() % 3 - 1;
