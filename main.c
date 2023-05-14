@@ -19,6 +19,8 @@ void getAsyncInput()
     }
 }
 
+int offset[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
 void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* lastSystemTime, int health, int* lastHealth, int armor, float xp, Texture2D widgets, Texture2D icons)
 {
     int centerX = GetScreenWidth() / 2;
@@ -39,67 +41,18 @@ void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* l
     DrawTexturePro(widgets, hotbar, hotbarDestRect, origin, 0, WHITE);
 
     // xp bar
-
-    int xpHeight = 5;
-    Rectangle xpBar = { 0, 64, hotbarWidth, xpHeight };
-    Rectangle xpDestRect = {
-        centerX - hotbarWidth * sr / 2,
-        bottomY - xpHeight * sr - (hotbarHeight + 2) * sr,
-        hotbarWidth * sr,
-        xpHeight* sr
-    };
-
-    DrawTexturePro(icons, xpBar, xpDestRect, origin, 0, WHITE);
-#if 0
-    // hearts
     {
-        int heartSize = 9;
-        int heartX = (centerX - (hotbarWidth * sr) / 2);
-        int heartY = (bottomY - xpHeight * sr - (hotbarHeight + 2) * sr) - (heartSize + 1) * sr;
+        int xpHeight = 5;
+        Rectangle xpBar = { 0, 64, hotbarWidth, xpHeight };
+        Rectangle xpDestRect = {
+            centerX - hotbarWidth * sr / 2,
+            bottomY - xpHeight * sr - (hotbarHeight + 2) * sr,
+            hotbarWidth * sr,
+            xpHeight * sr
+        };
 
-        for (int i = 0; i < 10; i++)
-        {
-            Rectangle heart = { 16, 0, heartSize, heartSize };
-            Rectangle heartDestRect = {
-                heartX + i * (heartSize - 1) * sr,
-                heartY,
-                heartSize * sr,
-                heartSize * sr
-            };
-
-            DrawTexturePro(icons, heart, heartDestRect, origin, 0, WHITE);
-        }
-
-        // draw full hearts
-        int numFullHearts = (health / 10);
-        for (int i = 0; i < numFullHearts; i++)
-        {
-            Rectangle heart = { 52, 0, heartSize, heartSize };
-            Rectangle heartDestRect = {
-                heartX + i * (heartSize - 1) * sr,
-                heartY,
-                heartSize * sr,
-                heartSize * sr
-            };
-
-            DrawTexturePro(icons, heart, heartDestRect, origin, 0, WHITE);
-        }
-        // draw half hearts
-        int numHalfHearts = health % 10 / 5;
-        if (numHalfHearts > 0)
-        {
-            Rectangle heart = { 61, 0, heartSize, heartSize };
-            Rectangle heartDestRect = {
-                heartX + numFullHearts * (heartSize - 1) * sr,
-                heartY,
-                heartSize * sr,
-                heartSize * sr
-            };
-
-            DrawTexturePro(icons, heart, heartDestRect, origin, 0, WHITE);
-        }
+        DrawTexturePro(icons, xpBar, xpDestRect, origin, 0, WHITE);
     }
-#endif
 
     //hearts
     {
@@ -155,7 +108,7 @@ void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* l
 
             if (i <= 4)
             {
-                l4 += rand() % 2 * sr;
+                l4 += offset[j5];
             }
 
             if (l2 <= 0 && j5 == j3)
@@ -258,19 +211,21 @@ void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* l
 
 
     // crosshair
-    int crosshairSize = 15;
-    Rectangle crosshair = { 0, 0, crosshairSize, crosshairSize };
-    Rectangle crosshairDestRect = {
-        centerX - crosshairSize * sr / 2, 
-        bottomY / 2 - crosshairSize * sr / 2,
-        crosshairSize * sr,
-        crosshairSize * sr 
-    };
+    {
+        int crosshairSize = 15;
+        Rectangle crosshair = { 0, 0, crosshairSize, crosshairSize };
+        Rectangle crosshairDestRect = {
+            centerX - crosshairSize * sr / 2,
+            bottomY / 2 - crosshairSize * sr / 2,
+            crosshairSize * sr,
+            crosshairSize * sr
+        };
 
-    DrawTexturePro(icons, crosshair, crosshairDestRect, origin, 0, WHITE);
+        DrawTexturePro(icons, crosshair, crosshairDestRect, origin, 0, WHITE);
+    }
 }
 
-int main (void)
+int main(void)
 {
     time_t t;
     srand((unsigned)time(&t));
@@ -283,7 +238,7 @@ int main (void)
     SetConfigFlags(FLAG_WINDOW_TRANSPARENT | FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_MOUSE_PASSTHROUGH | FLAG_WINDOW_TOPMOST);
 
     InitWindow(windowWidth, windowHeight, "raylib [core] example - basic window");
-    SetTargetFPS(20);
+    SetTargetFPS(60);
     //SetExitKey(0);
     bool exitWindow = false;
 
@@ -320,9 +275,12 @@ int main (void)
         while (accumulator >= timePerFrame)
         {
             //printf("Hello, world! %d\n", counter++);
+            for (int count = 0; count < 10; count++) {
+                offset[count] = rand() % 2 * scaledResolution;
+            }
+
             accumulator -= timePerFrame;
         }
-
 
         getAsyncInput();
         BeginDrawing();
