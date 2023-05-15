@@ -12,6 +12,10 @@
 
 int main(void)
 {
+    int debugX = 0, debugY = 0;
+    bool xEditMode = false;
+    bool yEditMode = false;
+    
     time_t t;
     srand((unsigned)time(&t));
 
@@ -27,7 +31,7 @@ int main(void)
     int offset[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     int foodOffset[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-    int scaledResolution = 1;
+    int scaledResolution = 1 + debugX;
 
     int health = 4;
     int food = 0;
@@ -39,8 +43,6 @@ int main(void)
     bool isKeyPressed = false;
 
     int partialTicks = 0;
-
-    int debugX = 0, debugY = 0;
 
     SetConfigFlags(FLAG_WINDOW_TRANSPARENT | /*FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_MOUSE_PASSTHROUGH |*/ FLAG_WINDOW_TOPMOST | FLAG_WINDOW_RESIZABLE);
 
@@ -128,25 +130,32 @@ int main(void)
 
         BeginDrawing();
         ClearBackground(BLANK);
+        
+        if (GuiValueBox((Rectangle){60, 100, 80, 25 }, "Scale", &debugX, 1, 20, xEditMode)) xEditMode = !xEditMode;
+        scaledResolution = debugX;
+        if (GuiValueBox((Rectangle){60, 150, 80, 25 }, "xp", &xpLevel, 1, 20, yEditMode)) yEditMode = !yEditMode;
 
         //debugX = GuiSlider((Rectangle) { 355, 400, 165, 20 }, "TEST", TextFormat("%2.2f", (float)debugX), debugX, -50, 100);
         //debugY = GuiSliderBar((Rectangle) { 320, 430, 200, 20 }, NULL, TextFormat("%i", (int)debugY), debugY, 0, 100);
-
+        
         //DrawText("Congrats! You created your first window!", 0, 0, 20, LIGHTGRAY);
         renderHotbar(scaledResolution, &updateCounter, &healthUpdateCounter, &lastSystemTime, health, &lastHealth, food, saturation, armor, xpProgress, offset, foodOffset, widgets, icons);
 
         char charList[] = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
         char s[20];
         int textSize = 5;
-        int xp = 27 + debugY;
-        sprintf(s, "%d", xp);
+        //int xp = 9 + debugY;
+        sprintf(s, "%d", xpLevel);
         //int i1 = (GetScreenWidth() / scaledResolution + getMCTextWidth("32", textSize, font) / scaledResolution) / 2;
-        int i1 = (GetScreenWidth() / scaledResolution) / 2;
-        int j1 = GetScreenHeight() / scaledResolution - 31 - 4;
+        int centerWidth = GetScreenWidth() / 2;
+        int hotbarHeight = (GetScreenHeight() / scaledResolution - (31 + 4)) * scaledResolution;
         //printf("%d ", getMCTextWidth(s, textSize, font, charWidths));
         int offset = (strlen(s) == 1) ? 3 : strlen(s) * 4;
 
-        drawOutlinedMCText(font, s, (i1 - getMCTextWidth(s, textSize, font, charWidths) / 2) * scaledResolution-1 * 4 / scaledResolution, (j1 + 1) * scaledResolution + 1, textSize, 1, YELLOW, chars, charWidths, scaledResolution);
+        //drawOutlinedMCText(font, s, (i1 - getMCTextWidth(s, textSize, font, charWidths) / 2) * scaledResolution-1 * 4 / scaledResolution, (j1 + 1) * scaledResolution + 1, textSize, 1, YELLOW, chars, charWidths, scaledResolution);
+        printf("%d\n", getMCTextWidth(s, textSize, font, charWidths));
+        drawOutlinedMCText(font, s, centerWidth - (getMCTextWidth(s, textSize, font, charWidths) / 2 * scaledResolution) - 1 * scaledResolution, hotbarHeight, textSize, 1, YELLOW, chars, charWidths, scaledResolution);
+        
         //drawMCText(font, s, (i1 - getMCTextWidth(s, textSize, font, charWidths) / 2) * scaledResolution-1, (j1 + 1) * scaledResolution + 1, textSize, 1, YELLOW, chars, charWidths, scaledResolution);
         drawMCText(font, "43", 0, 30, 5, 1, YELLOW, chars, charWidths, scaledResolution);
 

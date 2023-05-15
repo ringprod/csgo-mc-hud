@@ -72,8 +72,8 @@ void drawMCText(Texture2D font, const char* str, int x, int y, float scale, int 
             chars[charIndex].width = charWidths[charIndex];
             Rectangle charRect = chars[charIndex];
             Rectangle destRect = (Rectangle){ x, y, charWidths[charIndex] * sr, 8 * sr};
-            Vector2 origin = (Vector2){ charRect.width / 2, charRect.height / 2 };
-            //Vector2 origin = (Vector2){ 0, 0 };
+            //Vector2 origin = (Vector2){ charRect.width / 2, charRect.height / 2 };
+            Vector2 origin = (Vector2){ 0, 0 };
             DrawTexturePro(font, charRect, destRect, origin, 0, color);
             x += (charWidths[charIndex] + spacing) * sr;
             //printf("%d: char %c width: %d¥n", i, charList[charIndex], charWidths[charIndex]);
@@ -90,8 +90,8 @@ void drawOutlinedMCText(Texture2D font, const char* str, int x, int y, float sca
             chars[charIndex].width = charWidths[charIndex];
             Rectangle charRect = chars[charIndex];
             Rectangle destRect = (Rectangle){ x, y, charWidths[charIndex] * sr, 8 * sr };
-            Vector2 origin = (Vector2){ charRect.width / 2, charRect.height / 2 };
-            //Vector2 origin = (Vector2){ 0, 0 };
+            //Vector2 origin = (Vector2){ charRect.width / 2, charRect.height / 2 };
+            Vector2 origin = (Vector2){ 0, 0 };
             // Draw the outline first
             DrawTexturePro(font, charRect, (Rectangle) { destRect.x - 1 * sr, destRect.y, destRect.width, destRect.height }, origin, 0, BLACK);
             DrawTexturePro(font, charRect, (Rectangle) { destRect.x + 1 * sr, destRect.y, destRect.width, destRect.height }, origin, 0, BLACK);
