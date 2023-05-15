@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "include/raylib.h"
 #include "font.h"
 
@@ -61,27 +63,50 @@ void readFontTexture(Texture2D texture, int* charWidths)
     UnloadImage(image);
 }
 
-void drawMCText(Texture2D font, const char* str, int x, int y, float scale, int spacing, Color color, Rectangle* chars, int* charWidths) {
-    scale = scale * 0.8;
+void drawMCText(Texture2D font, const char* str, int x, int y, float scale, int spacing, Color color, Rectangle* chars, int* charWidths, int sr) {
     char charList[] = "×××××××××××××××××××××××××××××××× !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
     for (int i = 0; i < strlen(str); i++) {
         const char* ptr = strchr(charList, str[i]);
         if (ptr) {
             int charIndex = ptr - charList;
-            float charScale = scale * charWidths[charIndex] / 8;
             chars[charIndex].width = charWidths[charIndex];
             Rectangle charRect = chars[charIndex];
-            Rectangle destRect = (Rectangle){ x, y, charWidths[charIndex] * scale, 8 * scale };
-            //Vector2 origin = (Vector2){ charRect.width / 2, charRect.height / 2 };
-            Vector2 origin = (Vector2){ 0, 0 };
+            Rectangle destRect = (Rectangle){ x, y, charWidths[charIndex] * sr, 8 * sr};
+            Vector2 origin = (Vector2){ charRect.width / 2, charRect.height / 2 };
+            //Vector2 origin = (Vector2){ 0, 0 };
             DrawTexturePro(font, charRect, destRect, origin, 0, color);
-            x += (charWidths[charIndex] + spacing) * scale;
+            x += (charWidths[charIndex] + spacing) * sr;
+            //printf("%d: char %c width: %d\n", i, charList[charIndex], charWidths[charIndex]);
+        }
+    }
+}
+
+void drawOutlinedMCText(Texture2D font, const char* str, int x, int y, float scale, int spacing, Color color, Rectangle* chars, int* charWidths, int sr) {
+    char charList[] = "×××××××××××××××××××××××××××××××× !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+    for (int i = 0; i < strlen(str); i++) {
+        const char* ptr = strchr(charList, str[i]);
+        if (ptr) {
+            int charIndex = ptr - charList;
+            chars[charIndex].width = charWidths[charIndex];
+            Rectangle charRect = chars[charIndex];
+            Rectangle destRect = (Rectangle){ x, y, charWidths[charIndex] * sr, 8 * sr };
+            Vector2 origin = (Vector2){ charRect.width / 2, charRect.height / 2 };
+            //Vector2 origin = (Vector2){ 0, 0 };
+            // Draw the outline first
+            DrawTexturePro(font, charRect, (Rectangle) { destRect.x - 1 * sr, destRect.y, destRect.width, destRect.height }, origin, 0, BLACK);
+            DrawTexturePro(font, charRect, (Rectangle) { destRect.x + 1 * sr, destRect.y, destRect.width, destRect.height }, origin, 0, BLACK);
+            DrawTexturePro(font, charRect, (Rectangle) { destRect.x, destRect.y - 1 * sr, destRect.width, destRect.height }, origin, 0, BLACK);
+            DrawTexturePro(font, charRect, (Rectangle) { destRect.x, destRect.y + 1 * sr, destRect.width, destRect.height }, origin, 0, BLACK);
+
+            DrawTexturePro(font, charRect, destRect, origin, 0, color);
+            x += (charWidths[charIndex] + spacing) * sr;
             //printf("%d: char %c width: %d\n", i, charList[charIndex], charWidths[charIndex]);
         }
     }
 }
 
 int getMCTextWidth(const char* str, int scale, Texture2D font, int* charWidths) {
+    scale = scale * 0.8;
     int totalWidth = 0;
     char charList[] = "×××××××××××××××××××××××××××××××× !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
     for (int i = 0; i < strlen(str); i++) {
@@ -91,5 +116,5 @@ int getMCTextWidth(const char* str, int scale, Texture2D font, int* charWidths) 
             totalWidth += charWidths[charIndex] + 1;
         }
     }
-    return totalWidth == 0 ? 0 : (totalWidth - 1) * scale;
+    return (totalWidth == 0 ? 0 : (totalWidth - 1));
 }

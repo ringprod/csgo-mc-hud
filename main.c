@@ -3,7 +3,9 @@
 #include <time.h>
 #include <string.h>
 
+#define RAYGUI_IMPLEMENTATION
 #include "include/raylib.h"
+#include "include/raygui.h"
 
 #include "render.h"
 #include "font.h"
@@ -48,7 +50,7 @@ void getAsyncInput(bool* isKeyPressed, int *debugX, int *debugY, float *var)
     {
         if (!*isKeyPressed)
         {
-            *debugY--;
+            //*debugY -= 1;
             printf("x: %d y: %d\n", *debugX, *debugY);
         }
         *isKeyPressed = true;
@@ -62,7 +64,7 @@ void getAsyncInput(bool* isKeyPressed, int *debugX, int *debugY, float *var)
     {
         if (!*isKeyPressed)
         {
-            *debugY++;
+            //*debugY += 1;
             printf("x: %d y: %d\n", *debugX, *debugY);
         }
         *isKeyPressed = true;
@@ -190,22 +192,29 @@ int main(void)
         BeginDrawing();
         ClearBackground(BLANK);
 
+        //debugX = GuiSlider((Rectangle) { 355, 400, 165, 20 }, "TEST", TextFormat("%2.2f", (float)debugX), debugX, -50, 100);
+        //debugY = GuiSliderBar((Rectangle) { 320, 430, 200, 20 }, NULL, TextFormat("%i", (int)debugY), debugY, 0, 100);
+
         //DrawText("Congrats! You created your first window!", 0, 0, 20, LIGHTGRAY);
         renderHotbar(scaledResolution, &updateCounter, &healthUpdateCounter, &lastSystemTime, health, &lastHealth, food, saturation, armor, xpProgress, offset, foodOffset, widgets, icons);
 
         char charList[] = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
-        //drawMCText(font, "test among us amongy YOU!Yessir! fortnite", 10, 10, 5, 1, YELLOW);
-
-        //char s[20];
+        char s[20];
         int textSize = 5;
-        //sprintf(s, "%d", xpProgress);
+        int xp = 27 + debugY;
+        sprintf(s, "%d", xp);
         //int i1 = (GetScreenWidth() / scaledResolution + getMCTextWidth("32", textSize, font) / scaledResolution) / 2;
         int i1 = (GetScreenWidth() / scaledResolution) / 2;
         int j1 = GetScreenHeight() / scaledResolution - 31 - 4;
-        drawMCText(font, "1", (i1 + debugY) * scaledResolution, j1 * scaledResolution + 1, textSize, 1, YELLOW, chars, charWidths);
-        drawMCText(font, "43", 0, 0, 5, 1, YELLOW, chars, charWidths);
-        //DrawFPS(10, 10);
+        //printf("%d ", getMCTextWidth(s, textSize, font, charWidths));
+        int offset = (strlen(s) == 1) ? 3 : strlen(s) * 4;
 
+        drawOutlinedMCText(font, s, (i1 - getMCTextWidth(s, textSize, font, charWidths) / 2) * scaledResolution-1 * 4 / scaledResolution, (j1 + 1) * scaledResolution + 1, textSize, 1, YELLOW, chars, charWidths, scaledResolution);
+        //drawMCText(font, s, (i1 - getMCTextWidth(s, textSize, font, charWidths) / 2) * scaledResolution-1, (j1 + 1) * scaledResolution + 1, textSize, 1, YELLOW, chars, charWidths, scaledResolution);
+        drawMCText(font, "43", 0, 0, 5, 1, YELLOW, chars, charWidths, scaledResolution);
+
+
+        //DrawFPS(10, 10);
 
         EndDrawing();
     }
