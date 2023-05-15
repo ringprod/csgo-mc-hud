@@ -454,103 +454,72 @@ void readFontTexture(Texture2D texture)
     const int spacing = 0;
 
     const int charsPerRow = 16;
-    const int charsPerCol = 128 / charsPerRow;
+    const int charsPerCol = 16;
 
+    bool isTransparent = true;
 
     Image image = LoadImageFromTexture(texture);
     Color* colors = LoadImageColors(image);
 
-    int lvt_4_1_ = texture.width;
-    int lvt_3_2_ = texture.height;
-    int lvt_6_1_ = lvt_4_1_ / 16;
-    int lvt_7_1_ = lvt_3_2_ / 16;
-    bool lvt_8_1_ = true;
-    float lvt_9_1_ = 8.0F / (float)lvt_7_1_;
+    //char charList[] = "                                 !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 
-    for (int lvt_10_1_ = 0; lvt_10_1_ < 256; ++lvt_10_1_)
+    for (int characterRow = 0; characterRow < charsPerRow; characterRow++)
     {
-        int j1 = lvt_10_1_ % 16;
-        int k1 = lvt_10_1_ / 16;
-
-        if (lvt_10_1_ == 32)
+        for (int characterCol = 0; characterCol < charsPerCol; characterCol++)
         {
-            charWidths[lvt_10_1_] = 4;
-        }
+            int index = characterRow * charsPerCol + characterCol;
+            int width = 0;
 
-        int l1;
-
-        for (l1 = lvt_7_1_ - 1; l1 >= 0; --l1)
-        {
-            int i2 = j1 * lvt_7_1_ + l1;
-            bool flag1 = true;
-
-            for (int j2 = 0; j2 < lvt_6_1_ && flag1; ++j2)
+            for (int px = 7; px >= 0; px--)
             {
-                int k2 = (k1 * lvt_7_1_ + j2) * lvt_3_2_;
-
-                if ((colors[i2 * texture.width + k2].a >> 24 & 255) != 0)
+                for (int py = 7; py >= 0; py--)
                 {
-                    flag1 = false;
+                    int pixelX = characterCol * 8 + px;
+                    int pixelY = characterRow * 8 + py;
+                    printf("%c", colors[pixelY * 128 + pixelX].a == 255 ? '*' : ' ');
+                    if (colors[pixelY * 128 + pixelX].a == 255)
+                    {
+                        width = px + 1;
+                        isTransparent = false;
+                    }
+                    if (!isTransparent)
+                        break;
                 }
+                printf("\n");
+                
+                if (!isTransparent)
+                    break;
             }
-
-            if (!flag1)
-            {
-                break;
-            }
+            //printf("%c width of %d\n", charList[characterRow * 16 + characterCol], width);
+            charWidths[characterRow * charsPerCol + characterCol] = width;
+            isTransparent = true;
+            printf("\n%d ^------------\n", width);
         }
-
-        ++l1;
-        charWidths[lvt_10_1_] = (int)(0.5D + (double)((float)l1 * lvt_9_1_)) + 1;
+        
     }
 
+    charWidths[34] = 4;
 
     UnloadImage(image);
 }
 
-#if 0
-void read1FontTexture(Texture2D texture)
-{
-    int charWidths[128];
-    for (int i = 0; i < 128; i++) {
-        int start = -1;
-        int end = -1;
-        for (int x = 0; x < font.width; x++) {
-            for (int y = i * charHeight; y < (i + 1) * charHeight; y++) {
-                if (font.data[y * font.width + x].a != 0) {
-                    if (start == -1) start = x;
-                    end = x;
-                }
-            }
+void drawMCText(Texture2D font, const char* str, int x, int y, float scale, int spacing, Color color) {
+        char charList[] = "×××××××××××××××××××××××××××××××× !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+    for (int i = 0; i < strlen(str); i++) {
+        const char* ptr = strchr(charList, str[i]);
+        if (ptr) {
+            int charIndex = ptr - charList;
+            float charScale = scale * charWidths[charIndex] / 8;
+            chars[charIndex].width = charWidths[charIndex];
+            Rectangle charRect = chars[charIndex];
+            Rectangle destRect = (Rectangle){ x, y, charWidths[charIndex] * scale, 8 * scale };
+            Vector2 origin = (Vector2){ charRect.width / 2, charRect.height / 2 };
+            DrawTexturePro(font, charRect, destRect, origin, 0, color);
+            x += (charWidths[charIndex] + spacing) * scale;
+            //printf("%d: char %c width: %d\n", i, charList[charIndex], charWidths[charIndex]);
         }
-        if (start == -1) start = 0;
-        if (end == -1) end = charWidth;
-        charWidths[i] = end - start + 1;
     }
 }
-#endif
-#if 0
-void drawMCText(Texture2D font, const char* str, int x, int y, float scale, Color color) {
-    for (int i = 0; i < strlen(str); i++) {
-        int charIndex = (int)str[i];
-        DrawTextureRec(font, chars[charIndex], (Vector2) { x + i * 8 * scale, y }, color);
-    }
-}
-#endif
-
-void drawMCText(Texture2D font, const char* str, int x, int y, float scale, Color color) {
-    for (int i = 0; i < strlen(str); i++) {
-        int charIndex = (int)str[i];
-        float charScale = scale * charWidths[charIndex] / 8;
-        Rectangle charRect = chars[charIndex];
-        Rectangle destRect = (Rectangle){ x, y, charWidths[charIndex] * scale, 8 * scale };
-        Vector2 origin = (Vector2){ charRect.width / 2, charRect.height / 2 };
-        DrawTexturePro(font, charRect, destRect, origin, 0, color);
-        x += charWidths[i] * scale;
-    }
-}
-
-
 
 int main(void)
 {
@@ -592,17 +561,7 @@ int main(void)
         foodOffset[count] = (GetScreenHeight() - 39 * scaledResolution) + rand() % 3 - 1;
     }
 
-   // readFontTexture(font);
-
-    for (int row = 0; row < 16; row++) {
-        for (int col = 0; col < 16; col++) {
-            int index = row * 16 + col;
-            charWidths[index] = 8;
-            printf("%2d ", charWidths[index]);
-        }
-        printf("\n");
-    }
-
+    readFontTexture(font);
 
     // mc font atlas
     int spacing = 0;
@@ -672,9 +631,9 @@ int main(void)
         //DrawText("Congrats! You created your first window!", 0, 0, 20, LIGHTGRAY);
         //DrawTexturePro(icons, heart, destRect, origin, 0, WHITE);
        
-        char charList[] = " !\\\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+        char charList[] = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 
-        drawMCText(font, "test", 200, 200, 100, YELLOW);
+        drawMCText(font, charList, 10, 10, 5, 1, YELLOW);
 
         //DrawTextEx(fonte, charList, (Vector2) { 20.0f, 500.0f }, 500, 1, RED);
 
