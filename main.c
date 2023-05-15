@@ -10,8 +10,8 @@ short GetAsyncKeyState(int vKey);
 Rectangle chars[128];
 int charWidths[256];
 
-int health = 20;
-int food = 20;
+int health = 4;
+int food = 0;
 int armor = 13;
 int saturation = 1;
 float xpProgress = 0.7f;
@@ -123,7 +123,7 @@ void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* l
     }
 
 
-    // xp levels
+    // xp progress
     if (xpProgress > 0.0f)
     {
         int length = (int)(xpProgress * 182.0f);
@@ -137,14 +137,19 @@ void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* l
         };
         DrawTexturePro(icons, xpBar, xpDestRect, origin, 0, WHITE);
 
-        char s[20];
-        //sprintf(s, "%d", xpProgress);
-        int i1 = (GetScreenWidth() / sr - MeasureText("23", 64) / sr) / 2;
-        int j1 = GetScreenHeight() / sr - 31 - 4;
-        DrawText("23", (i1 + 1) * sr, j1 * sr, 64, LIGHTGRAY);
+        //char s[20];
+        //int textSize = 4;
+        ////sprintf(s, "%d", xpProgress);
+        //int i1 = (GetScreenWidth() / sr - getMCTextWidth("32", textSize, font) / sr) / 2;
+        //int j1 = GetScreenHeight() / sr - 31 - 4;
+        //drawMCText(font, "32", (i1 + 1), j1 * sr, textSize, 1, YELLOW);
+        //drawMCText(font, "43", 100, 100, 5, 1, YELLOW);
+        
+
+        //DrawText("23", (i1 + 1) * sr, j1 * sr, 64, LIGHTGRAY);
     }
 
-
+    //drawMCText(font, "test among us amongy YOU!Yessir! fortnite", 0, 0, 5, 1, YELLOW);
 
     // stats 
     bool flag = *healthUpdateCounter > (long)*updateCounter && (*healthUpdateCounter - (long)*updateCounter) / 3L % 2L == 1L;
@@ -447,6 +452,7 @@ void renderHotbarItem(int hotbarX, int hotbarY, float elapsedFrameTime/*, Entity
 {
     // todo
 }
+
 void readFontTexture(Texture2D texture)
 {
     const int charWidth = 8;
@@ -461,7 +467,7 @@ void readFontTexture(Texture2D texture)
     Image image = LoadImageFromTexture(texture);
     Color* colors = LoadImageColors(image);
 
-    char charList[] = "                                 !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+    //char charList[] = "                                 !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 
     for (int characterRow = 0; characterRow < charsPerRow; characterRow++)
     {
@@ -490,7 +496,7 @@ void readFontTexture(Texture2D texture)
                 if (!isTransparent)
                     break;
             }
-            printf("%c width of %d\n", charList[characterRow * charsPerCol + characterCol], width);
+            //printf("%d width of %d\n", charList[characterRow * charsPerCol + characterCol], width);
             if (characterRow * charsPerCol + characterCol == 32)
                 charWidths[characterRow * charsPerCol + characterCol] = 4;           
             else
@@ -508,6 +514,7 @@ void readFontTexture(Texture2D texture)
 }
 
 void drawMCText(Texture2D font, const char* str, int x, int y, float scale, int spacing, Color color) {
+    scale = scale * 0.8;
         char charList[] = "×××××××××××××××××××××××××××××××× !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
     for (int i = 0; i < strlen(str); i++) {
         const char* ptr = strchr(charList, str[i]);
@@ -517,13 +524,28 @@ void drawMCText(Texture2D font, const char* str, int x, int y, float scale, int 
             chars[charIndex].width = charWidths[charIndex];
             Rectangle charRect = chars[charIndex];
             Rectangle destRect = (Rectangle){ x, y, charWidths[charIndex] * scale, 8 * scale };
-            Vector2 origin = (Vector2){ charRect.width / 2, charRect.height / 2 };
+            //Vector2 origin = (Vector2){ charRect.width / 2, charRect.height / 2 };
+            Vector2 origin = (Vector2){ 0, 0 };
             DrawTexturePro(font, charRect, destRect, origin, 0, color);
             x += (charWidths[charIndex] + spacing) * scale;
             //printf("%d: char %c width: %d\n", i, charList[charIndex], charWidths[charIndex]);
         }
     }
 }
+
+int getMCTextWidth(const char* str, int scale, Texture2D font) {
+    int totalWidth = 0;
+    char charList[] = "×××××××××××××××××××××××××××××××× !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+    for (int i = 0; i < strlen(str); i++) {
+        const char* ptr = strchr(charList, str[i]);
+        if (ptr) {
+            int charIndex = ptr - charList;
+            totalWidth += charWidths[charIndex] + 1;
+        }
+    }
+    return totalWidth == 0 ? 0 : (totalWidth - 1) * scale;
+}
+
 
 int main(void)
 {
@@ -545,15 +567,9 @@ int main(void)
     Texture2D widgets = LoadTexture("res/1.19.4/assets/minecraft/textures/gui/widgets.png");
     Texture2D icons = LoadTexture("res/1.19.4/assets/minecraft/textures/gui/icons.png");
     Texture2D background = LoadTexture("res/1.19.4/assets/minecraft/textures/gui/light_dirt_background.png");
-    Font fonte = LoadFontEx("res/minecraft-font/MinecraftRegular-Bmg3.otf", 96, 0, 0);
     Texture2D font = LoadTexture("res/1.19.4/assets/minecraft/textures/font/ascii.png");
-    SetTextureFilter(fonte.texture, TEXTURE_FILTER_POINT);
-    //SetTextureFilter(font.texture, TEXTURE_FILTER_POINT);
 
-    //int health = 3;
     int lastHealth = health;
-    //float xp = 0.73;
-    //int armor = 8;
 
     // intialize shake heart movement
     for (int count = 0; count < 10; count++) {
@@ -629,12 +645,22 @@ int main(void)
         BeginDrawing();
         ClearBackground(BLANK);
 
-        renderHotbar(scaledResolution, &updateCounter, &healthUpdateCounter, &lastSystemTime, health, &lastHealth, food, armor, widgets, icons);
         //DrawText("Congrats! You created your first window!", 0, 0, 20, LIGHTGRAY);
+        renderHotbar(scaledResolution, &updateCounter, &healthUpdateCounter, &lastSystemTime, health, &lastHealth, food, armor, widgets, icons);
        
         char charList[] = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+        //drawMCText(font, "test among us amongy YOU!Yessir! fortnite", 10, 10, 5, 1, YELLOW);
 
-        drawMCText(font, "test among us amongy YOU!Yessir! fortnite", 10, 10, 5, 1, YELLOW);
+        //char s[20];
+        int textSize = 5;
+        //sprintf(s, "%d", xpProgress);
+        //int i1 = (GetScreenWidth() / scaledResolution + getMCTextWidth("32", textSize, font) / scaledResolution) / 2;
+        int i1 = (GetScreenWidth() / scaledResolution) / 2;
+        int j1 = GetScreenHeight() / scaledResolution - 31 - 4;
+        drawMCText(font, "1", (i1+debugY) * scaledResolution, j1 * scaledResolution + 1, textSize, 1, YELLOW);
+        drawMCText(font, "43", 0, 0, 5, 1, YELLOW);
+        //DrawFPS(10, 10);
+
 
         EndDrawing();
     }
@@ -644,7 +670,6 @@ int main(void)
     UnloadTexture(widgets);
     UnloadTexture(icons);
     UnloadTexture(background);
-    UnloadFont(fonte);
     UnloadTexture(font);
 
     return 0;
