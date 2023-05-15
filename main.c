@@ -5,7 +5,6 @@
 
 #include "include/raylib.h"
 
-
 short GetAsyncKeyState(int vKey);
 
 Rectangle chars[128];
@@ -15,7 +14,8 @@ int health = 20;
 int food = 20;
 int armor = 13;
 int saturation = 1;
-float xpLevel = 0.7f;
+float xpProgress = 0.7f;
+int xpLevel = 1;
 
 bool isKeyPressed = false;
 
@@ -31,8 +31,8 @@ void getAsyncInput()
         {
             //debugX--;
             //printf("x: %d y: %d\n", debugX, debugY);
-            if (xpLevel > 0.0f)
-                xpLevel -= 0.1f;
+            if (xpProgress > 0.0f)
+                xpProgress -= 0.1f;
         }
         isKeyPressed = true;
     }
@@ -47,8 +47,8 @@ void getAsyncInput()
         {
             //debugX++;
             //printf("x: %d y: %d\n", debugX, debugY);
-            if (xpLevel < 1.0f)
-                xpLevel += 0.1f;
+            if (xpProgress < 1.0f)
+                xpProgress += 0.1f;
         }
         isKeyPressed = true;
     }
@@ -124,9 +124,9 @@ void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* l
 
 
     // xp levels
-    if (xpLevel > 0.0f)
+    if (xpProgress > 0.0f)
     {
-        int length = (int)(xpLevel * 182.0f);
+        int length = (int)(xpProgress * 182.0f);
         int xpHeight = 5;
         Rectangle xpBar = { 0, 69, length, xpHeight };
         Rectangle xpDestRect = {
@@ -138,7 +138,7 @@ void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* l
         DrawTexturePro(icons, xpBar, xpDestRect, origin, 0, WHITE);
 
         char s[20];
-        //sprintf(s, "%d", xpLevel);
+        //sprintf(s, "%d", xpProgress);
         int i1 = (GetScreenWidth() / sr - MeasureText("23", 64) / sr) / 2;
         int j1 = GetScreenHeight() / sr - 31 - 4;
         DrawText("23", (i1 + 1) * sr, j1 * sr, 64, LIGHTGRAY);
@@ -146,7 +146,7 @@ void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* l
 
 
 
-    // armor
+    // stats 
     bool flag = *healthUpdateCounter > (long)*updateCounter && (*healthUpdateCounter - (long)*updateCounter) / 3L % 2L == 1L;
 
     if (*lastHealth < health)
@@ -185,7 +185,7 @@ void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* l
     int i3 = armor; //entityplayer.getTotalArmorValue();
     int j3 = -1;
 
-
+    // armor
     for (int k3 = 0; k3 < 10; ++k3)
     {
         if (i3 > 0)
@@ -461,7 +461,7 @@ void readFontTexture(Texture2D texture)
     Image image = LoadImageFromTexture(texture);
     Color* colors = LoadImageColors(image);
 
-    //char charList[] = "                                 !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+    char charList[] = "                                 !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 
     for (int characterRow = 0; characterRow < charsPerRow; characterRow++)
     {
@@ -476,7 +476,7 @@ void readFontTexture(Texture2D texture)
                 {
                     int pixelX = characterCol * 8 + px;
                     int pixelY = characterRow * 8 + py;
-                    printf("%c", colors[pixelY * 128 + pixelX].a == 255 ? '*' : ' ');
+                    //printf("%c", colors[pixelY * 128 + pixelX].a == 255 ? '*' : ' ');
                     if (colors[pixelY * 128 + pixelX].a == 255)
                     {
                         width = px + 1;
@@ -485,15 +485,19 @@ void readFontTexture(Texture2D texture)
                     if (!isTransparent)
                         break;
                 }
-                printf("\n");
+                //printf("\n");
                 
                 if (!isTransparent)
                     break;
             }
-            //printf("%c width of %d\n", charList[characterRow * 16 + characterCol], width);
-            charWidths[characterRow * charsPerCol + characterCol] = width;
+            printf("%c width of %d\n", charList[characterRow * charsPerCol + characterCol], width);
+            if (characterRow * charsPerCol + characterCol == 32)
+                charWidths[characterRow * charsPerCol + characterCol] = 4;           
+            else
+                charWidths[characterRow * charsPerCol + characterCol] = width;
+            
             isTransparent = true;
-            printf("\n%d ^------------\n", width);
+            //printf("\n%d ^------------\n", width);
         }
         
     }
@@ -575,7 +579,6 @@ int main(void)
     double currentTime = GetTime();
     double accumulator = 0.0;
     double timePerFrame = 1.0 / 20.0;
-    //int counter = 0;
 
     double startTime = GetTime();
 
@@ -595,7 +598,6 @@ int main(void)
         while (accumulator >= timePerFrame)
         {
             updateCounter++;
-            //printf("Hello, world! %d\n", counter++);
             if (health <= 4)
             {
                 for (int count = 0; count < 10; count++) {
@@ -629,13 +631,10 @@ int main(void)
 
         renderHotbar(scaledResolution, &updateCounter, &healthUpdateCounter, &lastSystemTime, health, &lastHealth, food, armor, widgets, icons);
         //DrawText("Congrats! You created your first window!", 0, 0, 20, LIGHTGRAY);
-        //DrawTexturePro(icons, heart, destRect, origin, 0, WHITE);
        
         char charList[] = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 
-        drawMCText(font, charList, 10, 10, 5, 1, YELLOW);
-
-        //DrawTextEx(fonte, charList, (Vector2) { 20.0f, 500.0f }, 500, 1, RED);
+        drawMCText(font, "test among us amongy YOU!Yessir! fortnite", 10, 10, 5, 1, YELLOW);
 
         EndDrawing();
     }
