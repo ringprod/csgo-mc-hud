@@ -41,19 +41,19 @@ void readFontTexture(Texture2D texture, int* charWidths)
                     if (!isTransparent)
                         break;
                 }
-                //printf("짜n");
+                //printf("쩸");
 
                 if (!isTransparent)
                     break;
             }
-            //printf("%d width of %d짜n", charList[characterRow * charsPerCol + characterCol + 32], width);
+            //printf("%d width of %d쩸", charList[characterRow * charsPerCol + characterCol + 32], width);
             if (characterRow * charsPerCol + characterCol == 32)
                 charWidths[characterRow * charsPerCol + characterCol] = 4;
             else
                 charWidths[characterRow * charsPerCol + characterCol] = width;
 
             isTransparent = true;
-            //printf("짜n%d ^------------짜n", width);
+            //printf("쩸%d ^------------쩸", width);
         }
 
     }
@@ -76,7 +76,7 @@ void drawMCText(Texture2D font, const char* str, int x, int y, float scale, int 
             Vector2 origin = (Vector2){ 0, 0 };
             DrawTexturePro(font, charRect, destRect, origin, 0, color);
             x += (charWidths[charIndex] + spacing) * sr;
-            //printf("%d: char %c width: %d짜n", i, charList[charIndex], charWidths[charIndex]);
+            //printf("%d: char %c width: %d쩸", i, charList[charIndex], charWidths[charIndex]);
         }
     }
 }
@@ -100,7 +100,7 @@ void drawOutlinedMCText(Texture2D font, const char* str, int x, int y, float sca
 
             DrawTexturePro(font, charRect, destRect, origin, 0, color);
             x += (charWidths[charIndex] + spacing) * sr;
-            //printf("%d: char %c width: %d짜n", i, charList[charIndex], charWidths[charIndex]);
+            //printf("%d: char %c width: %d쩸", i, charList[charIndex], charWidths[charIndex]);
         }
     }
 }
