@@ -10,86 +10,24 @@
 #include "render.h"
 #include "font.h"
 
-short GetAsyncKeyState(int vKey);
-
-void getAsyncInput(bool* isKeyPressed, int *debugX, int *debugY, float *var)
-{
-    if (GetAsyncKeyState('A') & 0x1)
-    {
-        if (!*isKeyPressed)
-        {
-            //debugX--;
-            //printf("x: %d y: %d\n", debugX, debugY);
-            if (*var > 0.0f)
-                *var -= 0.1f;
-        }
-        *isKeyPressed = true;
-    }
-    else
-    {
-        *isKeyPressed = false;
-    }
-
-    if (GetAsyncKeyState('D') & 0x1)
-    {
-        if (!*isKeyPressed)
-        {
-            //debugX++;
-            //printf("x: %d y: %d\n", debugX, debugY);
-            if (*var < 1.0f)
-                *var += 0.1f;
-        }
-        *isKeyPressed = true;
-    }
-    else
-    {
-        *isKeyPressed = false;
-    }
-
-    if (GetAsyncKeyState('W') & 0x1)
-    {
-        if (!*isKeyPressed)
-        {
-            //*debugY -= 1;
-            printf("x: %d y: %d\n", *debugX, *debugY);
-        }
-        *isKeyPressed = true;
-    }
-    else
-    {
-        *isKeyPressed = false;
-    }
-
-    if (GetAsyncKeyState('S') & 0x1)
-    {
-        if (!*isKeyPressed)
-        {
-            //*debugY += 1;
-            printf("x: %d y: %d\n", *debugX, *debugY);
-        }
-        *isKeyPressed = true;
-    }
-    else
-    {
-        *isKeyPressed = false;
-    }
-}
-
 int main(void)
 {
     time_t t;
     srand((unsigned)time(&t));
 
-    int windowWidth = 1920;
-    int windowHeight = 1080 + 1;
-
+    //int windowWidth = 1920;
+    //int windowHeight = 1080 + 1;
+    
+    int windowWidth = 854;
+    int windowHeight = 480;
+    
     Rectangle chars[128];
     int charWidths[256];
 
     int offset[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     int foodOffset[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-    int scaledResolution = 4;
+    int scaledResolution = 1;
 
     int health = 4;
     int food = 0;
@@ -104,7 +42,7 @@ int main(void)
 
     int debugX = 0, debugY = 0;
 
-    SetConfigFlags(FLAG_WINDOW_TRANSPARENT | FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_MOUSE_PASSTHROUGH | FLAG_WINDOW_TOPMOST);
+    SetConfigFlags(FLAG_WINDOW_TRANSPARENT | /*FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_MOUSE_PASSTHROUGH |*/ FLAG_WINDOW_TOPMOST | FLAG_WINDOW_RESIZABLE);
 
     InitWindow(windowWidth, windowHeight, "raylib [core] example - basic window");
     SetTargetFPS(60);
@@ -151,7 +89,7 @@ int main(void)
 
     while (!exitWindow)
     {
-        if ((GetAsyncKeyState(0x1B) && 0x1) || WindowShouldClose()) exitWindow = true;
+        if (WindowShouldClose()) exitWindow = true;
 
         double newTime = GetTime();
         double deltaTime = newTime - currentTime;
@@ -188,7 +126,6 @@ int main(void)
             accumulator -= timePerFrame;
         }
 
-        getAsyncInput(&isKeyPressed, &debugX, &debugY, &xpProgress);
         BeginDrawing();
         ClearBackground(BLANK);
 
@@ -211,7 +148,7 @@ int main(void)
 
         drawOutlinedMCText(font, s, (i1 - getMCTextWidth(s, textSize, font, charWidths) / 2) * scaledResolution-1 * 4 / scaledResolution, (j1 + 1) * scaledResolution + 1, textSize, 1, YELLOW, chars, charWidths, scaledResolution);
         //drawMCText(font, s, (i1 - getMCTextWidth(s, textSize, font, charWidths) / 2) * scaledResolution-1, (j1 + 1) * scaledResolution + 1, textSize, 1, YELLOW, chars, charWidths, scaledResolution);
-        drawMCText(font, "43", 0, 0, 5, 1, YELLOW, chars, charWidths, scaledResolution);
+        drawMCText(font, "43", 0, 30, 5, 1, YELLOW, chars, charWidths, scaledResolution);
 
 
         //DrawFPS(10, 10);

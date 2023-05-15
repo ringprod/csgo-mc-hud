@@ -17,7 +17,7 @@ void readFontTexture(Texture2D texture, int* charWidths)
     Image image = LoadImageFromTexture(texture);
     Color* colors = LoadImageColors(image);
 
-    //char charList[] = "                                 !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+    //char charList[] = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 
     for (int characterRow = 0; characterRow < charsPerRow; characterRow++)
     {
@@ -41,19 +41,19 @@ void readFontTexture(Texture2D texture, int* charWidths)
                     if (!isTransparent)
                         break;
                 }
-                //printf("\n");
+                //printf("Â¥n");
 
                 if (!isTransparent)
                     break;
             }
-            //printf("%d width of %d\n", charList[characterRow * charsPerCol + characterCol], width);
+            //printf("%d width of %dÂ¥n", charList[characterRow * charsPerCol + characterCol + 32], width);
             if (characterRow * charsPerCol + characterCol == 32)
                 charWidths[characterRow * charsPerCol + characterCol] = 4;
             else
                 charWidths[characterRow * charsPerCol + characterCol] = width;
 
             isTransparent = true;
-            //printf("\n%d ^------------\n", width);
+            //printf("Â¥n%d ^------------Â¥n", width);
         }
 
     }
@@ -64,11 +64,11 @@ void readFontTexture(Texture2D texture, int* charWidths)
 }
 
 void drawMCText(Texture2D font, const char* str, int x, int y, float scale, int spacing, Color color, Rectangle* chars, int* charWidths, int sr) {
-    char charList[] = "×××××××××××××××××××××××××××××××× !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+    char charList[] = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
     for (int i = 0; i < strlen(str); i++) {
         const char* ptr = strchr(charList, str[i]);
         if (ptr) {
-            int charIndex = ptr - charList;
+            int charIndex = ptr - charList + 32;
             chars[charIndex].width = charWidths[charIndex];
             Rectangle charRect = chars[charIndex];
             Rectangle destRect = (Rectangle){ x, y, charWidths[charIndex] * sr, 8 * sr};
@@ -76,17 +76,17 @@ void drawMCText(Texture2D font, const char* str, int x, int y, float scale, int 
             //Vector2 origin = (Vector2){ 0, 0 };
             DrawTexturePro(font, charRect, destRect, origin, 0, color);
             x += (charWidths[charIndex] + spacing) * sr;
-            //printf("%d: char %c width: %d\n", i, charList[charIndex], charWidths[charIndex]);
+            //printf("%d: char %c width: %dÂ¥n", i, charList[charIndex], charWidths[charIndex]);
         }
     }
 }
 
 void drawOutlinedMCText(Texture2D font, const char* str, int x, int y, float scale, int spacing, Color color, Rectangle* chars, int* charWidths, int sr) {
-    char charList[] = "×××××××××××××××××××××××××××××××× !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+    char charList[] = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
     for (int i = 0; i < strlen(str); i++) {
         const char* ptr = strchr(charList, str[i]);
         if (ptr) {
-            int charIndex = ptr - charList;
+            int charIndex = ptr - charList + 32;
             chars[charIndex].width = charWidths[charIndex];
             Rectangle charRect = chars[charIndex];
             Rectangle destRect = (Rectangle){ x, y, charWidths[charIndex] * sr, 8 * sr };
@@ -100,7 +100,7 @@ void drawOutlinedMCText(Texture2D font, const char* str, int x, int y, float sca
 
             DrawTexturePro(font, charRect, destRect, origin, 0, color);
             x += (charWidths[charIndex] + spacing) * sr;
-            //printf("%d: char %c width: %d\n", i, charList[charIndex], charWidths[charIndex]);
+            //printf("%d: char %c width: %dÂ¥n", i, charList[charIndex], charWidths[charIndex]);
         }
     }
 }
@@ -108,11 +108,11 @@ void drawOutlinedMCText(Texture2D font, const char* str, int x, int y, float sca
 int getMCTextWidth(const char* str, int scale, Texture2D font, int* charWidths) {
     scale = scale * 0.8;
     int totalWidth = 0;
-    char charList[] = "×××××××××××××××××××××××××××××××× !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+    char charList[] = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
     for (int i = 0; i < strlen(str); i++) {
         const char* ptr = strchr(charList, str[i]);
         if (ptr) {
-            int charIndex = ptr - charList;
+            int charIndex = ptr - charList + 32;
             totalWidth += charWidths[charIndex] + 1;
         }
     }
