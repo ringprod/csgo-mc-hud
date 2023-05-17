@@ -7,7 +7,6 @@ set output_file=test.exe
 rem Compile the source file
 echo Compiling %source_file%...
 gcc -lws2_32 -g main.c window.c defaults.c error.c header.c request.c response.c server.c -o test.exe -Wall -std=c99 -Wno-missing-braces -lraylib -L ../lib -lopengl32 -lgdi32 -lwinmm -lm -pthread -lws2_32
-
 rem Check if the compilation is successful
 if %errorlevel% neq 0 (
     echo Compilation failed!

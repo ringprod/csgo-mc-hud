@@ -6,6 +6,7 @@
 #include "server.h"
 
 int g;
+int a;
 
 int main()
 {

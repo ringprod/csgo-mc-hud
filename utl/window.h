@@ -4,6 +4,7 @@
 
 void* raylib(void *vargp);
 extern int g;
+extern int a;
 extern int running;
 
 #endif

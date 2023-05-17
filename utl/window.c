@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 extern int g;
+extern int a;
 
 void* raylib(void *vargp)
 {
@@ -15,6 +16,7 @@ void* raylib(void *vargp)
     SetTargetFPS(60);
 	
 	g = 0;
+    a = 0;
 	
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
@@ -36,11 +38,13 @@ void* raylib(void *vargp)
 
             ClearBackground(RAYWHITE);
 			
-			char str[50];
-			sprintf(str, "%d", g);
-
             DrawText("move the ball with arrow keys", 10, 10, 20, DARKGRAY);
+            char str[50];
+            sprintf(str, "health: %d", g);
 			DrawText(str, 50, 50, 20, LIGHTGRAY);
+            sprintf(str, "armor: %d", a);
+            DrawText(str, 50, 80, 20, LIGHTGRAY);
+
 
             DrawCircleV(ballPosition, 50, MAROON);
 

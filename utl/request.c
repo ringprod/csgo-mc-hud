@@ -28,24 +28,6 @@ char *get_request_value(char *buf)
 
     return strdup(retval);
 }
-#if 0
-REQUEST *GetRequest(SOCKET sock)
-{
-    REQUEST *request;
-    int msg_len;
-    char buf[REQUEST_SIZE];
-
-    msg_len = recv(sock, buf, sizeof(buf), 0);
-    //printf("Bytes Received: %d, message: %s\n", msg_len, buf);
-
-    request         = malloc(sizeof(REQUEST));
-    request->type   = get_request_type(buf);
-    request->value  = buf;
-    request->length = msg_len;
-
-    return request;
-}
-#endif
 
 REQUEST* GetRequest(SOCKET sock)
 {
