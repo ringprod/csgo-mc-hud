@@ -4,6 +4,8 @@
 #include <string.h>
 #include "server.h"
 
+#define MAX_BUFFER_SIZE 4096
+
 extern int g;
 
 void* servermain(void *vargp)
@@ -30,8 +32,6 @@ void* servermain(void *vargp)
     if (bind(sock, (struct sockaddr *)&local, sizeof(local)) == SOCKET_ERROR)
         error_die("bind()");
 
-listen_goto:
-
     if (listen(sock, 10) == SOCKET_ERROR)
         error_die("listen()");
 
@@ -53,33 +53,14 @@ listen_goto:
         REQUEST *request = GetRequest(msg_sock);
         printf("Client requested %d %s\n", request->type, request->value);
 
-		if (request->type == POST) {
-			char json_buffer[1024] = {0};
-			recv(msg_sock, json_buffer, sizeof(json_buffer), 0);
-			// Parse JSON data and extract player's health
-			// ...
-			printf("%s\n", request->value);
-			printf("POST!!!\n");
-			g++;
-			break;
-	
-			//printf("Player's health: %d\n", player_health);
-		}
-
-
-        if (request->length == 0)
-            continue;
-
-        RESPONSE *response = GetResponse(request);
-        int sent = SendResponse(msg_sock, response);
+        if (request->type == POST)
+        {
+            g++;
+            printf("postd\n");
+        }
 
         closesocket(msg_sock);
-
-        if (sent == 0)
-            break;
-        else if (sent == -1)
-            goto listen_goto;
-
+        printf("closed\n");
     }
 
     WSACleanup();

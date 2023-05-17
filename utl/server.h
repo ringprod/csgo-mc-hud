@@ -19,7 +19,7 @@ typedef struct {
 } RESPONSE;
 
 #define REQUEST_SIZE 4096
-#define DEFAULT_PORT 3000
+#define DEFAULT_PORT 3001
 
 #undef DELETE
 enum { RQ_UNDEF,GET,POST,PUT } response_types;

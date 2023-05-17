@@ -36,7 +36,7 @@ RESPONSE *GetResponse(REQUEST *request)
 
     return response;
 }
-
+#if 0
 int SendResponse(SOCKET sock, RESPONSE *response)
 {
     if (response->error) {
@@ -79,3 +79,21 @@ int SendResponse(SOCKET sock, RESPONSE *response)
 
     return 1;
 }
+#endif
+
+int SendResponse(SOCKET sock, RESPONSE* response)
+{
+    if (response->error) {
+        send(sock, DEFAULT_ERROR_404, strlen(DEFAULT_ERROR_404), 0);
+        return 1;
+    }
+
+    char response_msg[1024];
+    snprintf(response_msg, sizeof(response_msg),
+        "HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nOK");
+
+    send(sock, response_msg, strlen(response_msg), 0);
+
+    return 1;
+}
+
