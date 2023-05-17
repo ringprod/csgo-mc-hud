@@ -3,12 +3,12 @@
 #include <stdio.h>
 #include <string.h>
 #include "server.h"
-//#include "cJSON/cJSON.h"
 
-#define MAX_BUFFER_SIZE 4096
 #define DELIMITERS " \t\n\":{,}"
 
-extern int g;
+extern int cHealth;
+extern int cArmor;
+extern int cKills;
 
 void* servermain(void *vargp)
 {
@@ -57,30 +57,6 @@ void* servermain(void *vargp)
 
         if (request->type == POST)
         {
-            //size_t json_len = strlen(request->value);
-            //char* json_copy = malloc(json_len + 1);
-            //strncpy(json_copy, request->value, json_len);
-            //json_copy[json_len] = '\0';
-
-            //cJSON* root = cJSON_Parse(request->value);
-
-            //if (root == NULL) {
-            //    printf("Failed to parse JSON.\n");
-            //}
-            //cJSON* healthObj = cJSON_GetObjectItemCaseSensitive(root, "id");
-            //if (cJSON_IsNumber(healthObj)) {
-            //    int health = healthObj->valueint;
-            //    printf("Player health: %d\n", health);
-            //    g = health;
-            //}
-            //else {
-            //    printf("Failed to retrieve player health.\n");
-            //}
-
-            // Clean up
-            //cJSON_Delete(root);
-
-            //g++;
             char* token = strtok(request->value, DELIMITERS);
             while (token != NULL) {
                 if (strcmp(token, "player") == 0) {
@@ -96,7 +72,7 @@ void* servermain(void *vargp)
                             // Extract the player's health value
                             int health = atoi(token);
                             printf("Player's health: %d\n", health);
-                            g = health;
+                            cHealth = health;
                         }
                         else {
                             printf("Failed to extract player's health.\n");
@@ -104,6 +80,46 @@ void* servermain(void *vargp)
                     }
                     else {
                         printf("Player's health not found.\n");
+                    }
+
+                    while (token != NULL && strcmp(token, "armor") != 0) {
+                        token = strtok(NULL, DELIMITERS);  // Move to the next token
+                    }
+                    if (token != NULL) {
+                        // Found the "armor" key
+                        token = strtok(NULL, DELIMITERS);  // Move to the next token (value)
+                        if (token != NULL) {
+                            // Extract the player's armor value
+                            int armor = atoi(token);
+                            printf("Player's armor: %d\n", armor);
+                            cArmor = armor;
+                        }
+                        else {
+                            printf("Failed to extract player's armor.\n");
+                        }
+                    }
+                    else {
+                        printf("Player's armor not found.\n");
+                    }
+
+                    while (token != NULL && strcmp(token, "kills") != 0) {
+                        token = strtok(NULL, DELIMITERS);  // Move to the next token
+                    }
+                    if (token != NULL) {
+                        // Found the "kills" key
+                        token = strtok(NULL, DELIMITERS);  // Move to the next token (value)
+                        if (token != NULL) {
+                            // Extract the player's armor value
+                            int kills = atoi(token);
+                            printf("Player's armor: %d\n", kills);
+                            cKills = kills;
+                        }
+                        else {
+                            printf("Failed to extract player's kills.\n");
+                        }
+                    }
+                    else {
+                        printf("Player's kills not found.\n");
                     }
                     break;
                 }

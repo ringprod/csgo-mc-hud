@@ -2,8 +2,9 @@
 #include "window.h"
 #include <stdio.h>
 
-extern int g;
-extern int a;
+extern int cHealth;
+extern int cArmor;
+extern int cKills;
 
 void* raylib(void *vargp)
 {
@@ -15,8 +16,9 @@ void* raylib(void *vargp)
     Vector2 ballPosition = { (float)screenWidth/2, (float)screenHeight/2 };
     SetTargetFPS(60);
 	
-	g = 0;
-    a = 0;
+    cHealth = 0;
+    cArmor = 0;
+    cKills = 0;
 	
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
@@ -40,10 +42,12 @@ void* raylib(void *vargp)
 			
             DrawText("move the ball with arrow keys", 10, 10, 20, DARKGRAY);
             char str[50];
-            sprintf(str, "health: %d", g);
+            sprintf(str, "health: %d", cHealth);
 			DrawText(str, 50, 50, 20, LIGHTGRAY);
-            sprintf(str, "armor: %d", a);
+            sprintf(str, "armor: %d", cArmor);
             DrawText(str, 50, 80, 20, LIGHTGRAY);
+            sprintf(str, "kills: %d", cKills);
+            DrawText(str, 50, 110, 20, LIGHTGRAY);
 
 
             DrawCircleV(ballPosition, 50, MAROON);

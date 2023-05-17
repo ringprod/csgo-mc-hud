@@ -1,9 +1,6 @@
 #include <pthread.h>
 #include <winsock2.h>
 
-extern int g;
-extern int running;
-
 void* servermain(void *vargp);
 
 typedef struct {

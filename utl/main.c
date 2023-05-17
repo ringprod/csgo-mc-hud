@@ -5,8 +5,9 @@
 #include "window.h"
 #include "server.h"
 
-int g;
-int a;
+int cHealth;
+int cArmor;
+int cKills;
 
 int main()
 {
