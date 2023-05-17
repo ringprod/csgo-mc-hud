@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 #include "server.h"
+//#include "../include/jsmn.h"
+#include "../include/cJSON.h"
 
 #define DELIMITERS " \t\n\":{,}"
 
@@ -10,6 +12,7 @@ extern int live;
 extern int cHealth;
 extern int cArmor;
 extern int cKills;
+
 
 void* servermain(void *vargp)
 {
@@ -42,6 +45,10 @@ void* servermain(void *vargp)
 
     int count = 0;
 
+    //jsmn_parser p;
+    //jsmntok_t t[128];
+    //jsmn_init(&p);
+
     while (1)
     {
         addr_len = sizeof(client_addr);
@@ -54,11 +61,89 @@ void* servermain(void *vargp)
         //printf("Connected to %s:%d\n", inet_ntoa(client_addr.sin_addr), htons(client_addr.sin_port));
 
         REQUEST *request = GetRequest(msg_sock);
-        printf("Client requested %d %s\n", request->type, request->value);
+        //printf("Client requested %d %s\n", request->type, request->value);
 
         if (request->type == POST)
         {
-            //int islive = 0;
+            cJSON* root = cJSON_ParseWithLength(request->value, request->length);
+            // root
+            if (root == NULL) {
+                printf("Failed to parse JSON: %s\n", cJSON_GetErrorPtr());
+            }
+
+            // Access the 'map' object
+            cJSON* map = cJSON_GetObjectItem(root, "map");
+            if (map == NULL || !cJSON_IsObject(map)) {
+                printf("Failed to retrieve 'map' object from JSON.\n");
+            }
+
+            // Access the 'phase' object
+            cJSON* phase = cJSON_GetObjectItem(map, "phase");
+            if (phase != NULL || cJSON_IsString(phase)) {
+                printf("phase: %s\n", phase->valuestring);
+                live = strcmp(phase->valuestring, "live") == 0;
+            }
+
+            // Access the 'player' object
+            cJSON* player = cJSON_GetObjectItem(root, "player");
+            if (player == NULL || !cJSON_IsObject(player)) {
+                printf("Failed to retrieve 'player' object from JSON.\n");
+            }
+
+            // Access the 'state' object within 'player'
+            cJSON* state = cJSON_GetObjectItem(player, "state");
+            if (state == NULL || !cJSON_IsObject(state)) {
+                printf("Failed to retrieve 'state' object from JSON.\n");
+            }
+
+            // Access the 'health' and 'armor' values within 'state'
+            cJSON* health = cJSON_GetObjectItem(state, "health");
+            if (health != NULL && cJSON_IsNumber(health)) {
+                printf("Health: %d\n", health->valueint);
+                cHealth = health->valueint;
+            }
+
+            cJSON* armor = cJSON_GetObjectItem(state, "armor");
+            if (armor != NULL && cJSON_IsNumber(armor)) {
+                printf("Armor: %d\n", armor->valueint);
+                cArmor = armor->valueint;
+            }
+            cJSON_Delete(root);
+
+            /*int curlyBracesCount = 0;
+            int squareBracketsCount = 0;
+
+            char* token = strtok(jsonStringCopy, "{[,]}");
+            while (token != NULL) {
+                if (strcmp(token, "{") == 0) {
+                    curlyBracesCount++;
+                }
+                else if (strcmp(token, "}") == 0) {
+                    curlyBracesCount--;
+                }
+                else if (strcmp(token, "[") == 0) {
+                    squareBracketsCount++;
+                }
+                else if (strcmp(token, "]") == 0) {
+                    squareBracketsCount--;
+                }
+
+                token = strtok(NULL, "{[,]}");
+            }
+
+            if (curlyBracesCount == 0 && squareBracketsCount == 0) {
+                printf("Valid af!\n");
+            }
+            else {
+                printf("NOOOOOOOOOO!\n");
+            }
+
+            int r = jsmn_parse(&p, jsonStringCopy, strlen(jsonStringCopy), t, 128);
+
+            if (r < 0) {
+                printf("Failed to parse JSON: %d\n", r);
+            }*/
+#if 0
             live = 1;
             char* token = strtok(request->value, DELIMITERS);
             while (token != NULL) {
@@ -183,7 +268,7 @@ void* servermain(void *vargp)
                 }
                 token = strtok(NULL, DELIMITERS);  // Move to the next token
             }
-            //live = islive;
+#endif       
             printf("postd\n");
         }
         FreeRequest(request);

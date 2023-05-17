@@ -15,7 +15,7 @@ typedef struct {
     int  error;
 } RESPONSE;
 
-#define REQUEST_SIZE 4096
+#define REQUEST_SIZE 8192
 #define DEFAULT_PORT 3000
 
 #undef DELETE
