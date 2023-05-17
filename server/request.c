@@ -50,3 +50,10 @@ REQUEST* GetRequest(SOCKET sock)
 
     return request;
 }
+
+void FreeRequest(REQUEST* request)
+{
+    free(request->value);
+    free(request);
+}
+

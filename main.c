@@ -18,5 +18,6 @@ int main()
 	pthread_create(&thread_server, NULL, servermain, NULL);
 	pthread_join(thread_window, NULL);
 	printf("After Thread\n");
+	//system("pause"); debug
 	exit(0);
 }

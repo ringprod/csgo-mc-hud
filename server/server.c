@@ -53,7 +53,7 @@ void* servermain(void *vargp)
         //printf("Connected to %s:%d\n", inet_ntoa(client_addr.sin_addr), htons(client_addr.sin_port));
 
         REQUEST *request = GetRequest(msg_sock);
-        printf("Client requested %d %s\n", request->type, request->value);
+        //printf("Client requested %d %s\n", request->type, request->value);
 
         if (request->type == POST)
         {
@@ -109,9 +109,9 @@ void* servermain(void *vargp)
                         // Found the "kills" key
                         token = strtok(NULL, DELIMITERS);  // Move to the next token (value)
                         if (token != NULL) {
-                            // Extract the player's armor value
+                            // Extract the player's kills value
                             int kills = atoi(token);
-                            printf("Player's armor: %d\n", kills);
+                            printf("Player's kills: %d\n", kills);
                             cKills = kills;
                         }
                         else {
@@ -128,6 +128,7 @@ void* servermain(void *vargp)
 
             printf("postd\n");
         }
+        FreeRequest(request);
 
         closesocket(msg_sock);
         printf("closed\n");

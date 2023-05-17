@@ -1,7 +1,7 @@
 #include "../include/raylib.h"
 #include "render.h"
 
-void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* lastSystemTime, int health, int* lastHealth, int foodLevel, int saturation, int armor, float xpProgress, int* offset, int* foodOffset, Texture2D widgets, Texture2D icons)
+void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* lastSystemTime, int health, int* lastHealth, int* playerHealth, int foodLevel, int saturation, int armor, float xpProgress, int* offset, int* foodOffset, Texture2D widgets, Texture2D icons)
 {
     int centerX = GetScreenWidth() / 2;
     int bottomY = GetScreenHeight();
@@ -48,30 +48,20 @@ void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* l
             xpHeight * sr
         };
         DrawTexturePro(icons, xpBar, xpDestRect, origin, 0, WHITE);
-
-        //char s[20];
-        //int textSize = 4;
-        ////sprintf(s, "%d", xpProgress);
-        //int i1 = (GetScreenWidth() / sr - getMCTextWidth("32", textSize, font) / sr) / 2;
-        //int j1 = GetScreenHeight() / sr - 31 - 4;
-        //drawMCText(font, "32", (i1 + 1), j1 * sr, textSize, 1, YELLOW);
-        //drawMCText(font, "43", 100, 100, 5, 1, YELLOW);
-
-
-        //DrawText("23", (i1 + 1) * sr, j1 * sr, 64, LIGHTGRAY);
     }
 
-    //drawMCText(font, "test among us amongy YOU!Yessir! fortnite", 0, 0, 5, 1, YELLOW);
-
     // stats 
+    int i = health;
     bool flag = *healthUpdateCounter > (long)*updateCounter && (*healthUpdateCounter - (long)*updateCounter) / 3L % 2L == 1L;
 
-    if (*lastHealth < health)
+    //if (*lastHealth > health)
+    if (i < *playerHealth)
     {
         *lastSystemTime = GetTime();
         *healthUpdateCounter = (long)(*updateCounter + 20);
     }
-    else if (*lastHealth > health)
+    //else if (*lastHealth < health)
+    else if (i > *playerHealth)
     {
         *lastSystemTime = GetTime();
         *healthUpdateCounter = (long)(*updateCounter + 10);
@@ -79,14 +69,15 @@ void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* l
 
     if (GetTime() - *lastSystemTime > 1000L)
     {
-        *lastHealth = health;
+        //*lastHealth = health;
+        *playerHealth = i;
+        *lastHealth = i;
         *lastSystemTime = GetTime();
     }
 
-    *lastHealth = health;
+    *playerHealth = i;
 
     int j = *lastHealth;
-    int i = health;
     int k = foodLevel;
 
     int l = (GetScreenWidth() / 2 - 91 * sr);
@@ -184,7 +175,7 @@ void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* l
 
         //printf("%d %d %d %d %d %d \n", k4, l4, 16 + i4 * 9, 9 * i5, 9, 9);
         {
-            Rectangle heart = { 16, 0, 9, 9 };
+            Rectangle heart = { 16 + i4 * 9, 0, 9, 9 };
             Rectangle heartDestRect = {
                 k4,
                 l4,

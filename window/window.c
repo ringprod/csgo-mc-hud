@@ -7,9 +7,6 @@
 #include <math.h>
 #include <time.h>
 #include <string.h>
-//#include <stdlib.h>
-//#include <unistd.h>
-//#include "../server/server.h"
 
 
 
@@ -94,11 +91,11 @@ void* raylib(void* vargp)
     time_t t;
     srand((unsigned)time(&t));
 
-    int windowWidth = 1920;
-    int windowHeight = 1080 + 1;
+    //int windowWidth = 1920;
+    //int windowHeight = 1080 + 1;
 
-    //int windowWidth = 854;
-    //int windowHeight = 480;
+    int windowWidth = 854;
+    int windowHeight = 480;
 
     Rectangle chars[128];
     int charWidths[256];
@@ -106,7 +103,7 @@ void* raylib(void* vargp)
     int offset[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     int foodOffset[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-    int scaledResolution = 1 + debugX;
+    int scaledResolution = 4;
 
     int health = 20;
     int food = 20;
@@ -115,7 +112,7 @@ void* raylib(void* vargp)
     float xpProgress = 0.0f;
     int xpLevel = 0;
 
-    cHealth = 0;
+    cHealth = 100; //debug
     cArmor = 0;
     cKills = 0;
 
@@ -123,9 +120,9 @@ void* raylib(void* vargp)
 
     int partialTicks = 0;
 
-    SetConfigFlags(FLAG_WINDOW_TRANSPARENT | FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_MOUSE_PASSTHROUGH | FLAG_WINDOW_TOPMOST | FLAG_WINDOW_RESIZABLE);
+    SetConfigFlags(FLAG_WINDOW_TRANSPARENT | /*FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_MOUSE_PASSTHROUGH |*/ FLAG_WINDOW_TOPMOST | FLAG_WINDOW_RESIZABLE);
 
-    InitWindow(windowWidth, windowHeight, "raylib [core] example - basic window");
+    InitWindow(windowWidth, windowHeight, "csgo mc hud");
     SetTargetFPS(60);
 
     //SetExitKey(0);
@@ -136,6 +133,7 @@ void* raylib(void* vargp)
     Texture2D background = LoadTexture("res/1.19.4/assets/minecraft/textures/gui/light_dirt_background.png");
     Texture2D font = LoadTexture("res/1.19.4/assets/minecraft/textures/font/ascii.png");
 
+    int playerHealth = health;
     int lastHealth = health;
 
     // intialize shake heart movement
@@ -222,14 +220,14 @@ void* raylib(void* vargp)
         ClearBackground(BLANK);
 
         if (GuiValueBox((Rectangle) { 60, 100, 80, 25 }, "Scale", & debugX, 1, 20, xEditMode)) xEditMode = !xEditMode;
-        scaledResolution = debugX + 1;
+        //scaledResolution = debugX + 1;
         if (GuiValueBox((Rectangle) { 60, 150, 80, 25 }, "xp", & xpLevel, 1, 20, yEditMode)) yEditMode = !yEditMode;
 
         //debugX = GuiSlider((Rectangle) { 355, 400, 165, 20 }, "TEST", TextFormat("%2.2f", (float)debugX), debugX, -50, 100);
         //debugY = GuiSliderBar((Rectangle) { 320, 430, 200, 20 }, NULL, TextFormat("%i", (int)debugY), debugY, 0, 100);
 
         //DrawText("Congrats! You created your first window!", 0, 0, 20, LIGHTGRAY);
-        renderHotbar(scaledResolution, &updateCounter, &healthUpdateCounter, &lastSystemTime, health, &lastHealth, food, saturation, armor, xpProgress, offset, foodOffset, widgets, icons);
+        renderHotbar(scaledResolution, &updateCounter, &healthUpdateCounter, &lastSystemTime, health, &lastHealth, &playerHealth, food, saturation, armor, xpProgress, offset, foodOffset, widgets, icons);
 
         char charList[] = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
         char s[20];
