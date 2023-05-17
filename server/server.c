@@ -6,6 +6,7 @@
 
 #define DELIMITERS " \t\n\":{,}"
 
+extern int live;
 extern int cHealth;
 extern int cArmor;
 extern int cKills;
@@ -53,14 +54,71 @@ void* servermain(void *vargp)
         //printf("Connected to %s:%d\n", inet_ntoa(client_addr.sin_addr), htons(client_addr.sin_port));
 
         REQUEST *request = GetRequest(msg_sock);
-        //printf("Client requested %d %s\n", request->type, request->value);
+        printf("Client requested %d %s\n", request->type, request->value);
 
         if (request->type == POST)
         {
+            //int islive = 0;
+            live = 1;
             char* token = strtok(request->value, DELIMITERS);
             while (token != NULL) {
+                if (strcmp(token, "map") == 0) {
+                    while (token != NULL && strcmp(token, "phase") != 0) {
+                        token = strtok(NULL, DELIMITERS);  // Move to the next token
+                    }
+                    if (token != NULL) {
+                        // Found the "phase" key
+                        token = strtok(NULL, DELIMITERS);  // Move to the next token (value)
+                        if (token != NULL) {
+                            // Extract the Map's phase value
+                            char phase[30];
+                            strcpy(phase, token);
+                            printf("Map's phase: %s\n", phase);
+                            if (strcmp(phase, "live") == 0)
+                            {
+                                printf("phase is live!\n");
+                                //islive = 1;
+                            }
+                            else
+                            {
+                                printf("phase is not live!\n");
+                                //islive = 0;
+                            }
+                            //cHealth = health;
+                        }
+                        else {
+                            printf("Failed to extract maps's phase.\n");
+                        }
+                    }
+                    else {
+                        printf("Map's phase not found.\n");
+                    }
+                }
+
                 if (strcmp(token, "player") == 0) {
                     // Found the "player" key
+                    //token = strtok(NULL, DELIMITERS);  // Move to the next token
+                    while (token != NULL && strcmp(token, "activity") != 0) {
+                        token = strtok(NULL, DELIMITERS);  // Move to the next token
+                    }
+                    if (token != NULL) {
+                        // Found the "activiy" key
+                        token = strtok(NULL, DELIMITERS);  // Move to the next token (value)
+                        if (token != NULL) {
+                            // Extract the player's activity value
+                            char activity[30];
+                            strcpy(activity, token);
+                            printf("Player's activity: %s\n", activity);
+                            //cHealth = health;
+                        }
+                        else {
+                            printf("Failed to extract player's activity.\n");
+                        }
+                    }
+                    else {
+                        printf("Player's activity not found.\n");
+                    }
+
                     token = strtok(NULL, DELIMITERS);  // Move to the next token
                     while (token != NULL && strcmp(token, "health") != 0) {
                         token = strtok(NULL, DELIMITERS);  // Move to the next token
@@ -125,7 +183,7 @@ void* servermain(void *vargp)
                 }
                 token = strtok(NULL, DELIMITERS);  // Move to the next token
             }
-
+            //live = islive;
             printf("postd\n");
         }
         FreeRequest(request);

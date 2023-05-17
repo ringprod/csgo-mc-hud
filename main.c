@@ -5,6 +5,7 @@
 #include "window/window.h"
 #include "server/server.h"
 
+int live;
 int cHealth;
 int cArmor;
 int cKills;
