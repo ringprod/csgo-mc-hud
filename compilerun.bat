@@ -6,7 +6,7 @@ set output_file=hud.exe
 
 rem Compile the source file
 echo Compiling %source_file%...
-gcc main.c render.c font.c -o hud.exe -Wall -std=c99 -Wno-missing-braces -I include/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm -lm
+gcc -lws2_32 main.c window/render.c window/font.c window/window.c server/defaults.c server/error.c server/header.c server/request.c server/response.c server/server.c -o hud.exe -Wall -std=c99 -Wno-missing-braces -I include/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm -lm -pthread -lws2_32
 
 rem Check if the compilation is successful
 if %errorlevel% neq 0 (
