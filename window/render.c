@@ -1,7 +1,7 @@
 #include "../include/raylib.h"
 #include "render.h"
 
-void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* lastSystemTime, int health, int* lastHealth, int* playerHealth, int foodLevel, int saturation, int armor, float xpProgress, int* offset, int* foodOffset, Texture2D widgets, Texture2D icons)
+void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* lastSystemTime, int health, int* lastHealth, int* playerHealth, int foodLevel, int saturation, int armor, float xpProgress, int* offset, int* foodOffset, int* shouldPlaySound, Texture2D widgets, Texture2D icons)
 {
     int centerX = GetScreenWidth() / 2;
     int bottomY = GetScreenHeight();
@@ -59,12 +59,14 @@ void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* l
     {
         *lastSystemTime = GetTime();
         *healthUpdateCounter = (long)(*updateCounter + 20);
+        *shouldPlaySound = 1;
     }
     //else if (*lastHealth < health)
     else if (i > *playerHealth)
     {
         *lastSystemTime = GetTime();
         *healthUpdateCounter = (long)(*updateCounter + 10);
+        *shouldPlaySound = 0;
     }
 
     if (GetTime() - *lastSystemTime > 1000L)
@@ -73,6 +75,7 @@ void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* l
         *playerHealth = i;
         *lastHealth = i;
         *lastSystemTime = GetTime();
+        *shouldPlaySound = 0;
     }
 
     *playerHealth = i;

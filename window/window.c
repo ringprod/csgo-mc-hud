@@ -1,8 +1,7 @@
-#define RAYGUI_IMPLEMENTATION
 #include "../include/raylib.h"
-#include "../include/raygui.h"
 #include "window.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <math.h>
 #include <time.h>
@@ -123,6 +122,8 @@ void* raylib(void* vargp)
     int partialTicks = 0;
 
     SetConfigFlags(FLAG_WINDOW_TRANSPARENT | FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_MOUSE_PASSTHROUGH | FLAG_WINDOW_TOPMOST | FLAG_WINDOW_RESIZABLE);
+    
+    InitAudioDevice();
 
     InitWindow(windowWidth, windowHeight, "csgo mc hud");
     SetTargetFPS(60);
@@ -134,6 +135,11 @@ void* raylib(void* vargp)
     Texture2D icons = LoadTexture("res/1.19.4/assets/minecraft/textures/gui/icons.png");
     Texture2D background = LoadTexture("res/1.19.4/assets/minecraft/textures/gui/light_dirt_background.png");
     Texture2D font = LoadTexture("res/1.19.4/assets/minecraft/textures/font/ascii.png");
+
+    Sound hit[3] = { 0 };
+    hit[0] = LoadSound("res/sounds/hit1.ogg");
+    hit[1] = LoadSound("res/sounds/hit2.ogg");
+    hit[2] = LoadSound("res/sounds/hit3.ogg");
 
     int playerHealth = health;
     int lastHealth = health;
@@ -165,9 +171,11 @@ void* raylib(void* vargp)
 
     double startTime = GetTime();
 
-    int updateCounter;
+    long updateCounter;
     long healthUpdateCounter;
     long lastSystemTime;
+
+    int shouldPlaySound = 0;
 
     while (!exitWindow)
     {
@@ -223,7 +231,17 @@ void* raylib(void* vargp)
 
         //DrawText("Congrats! You created your first window!", 0, 0, 20, LIGHTGRAY);
         if (live)
-            renderHotbar(scaledResolution, &updateCounter, &healthUpdateCounter, &lastSystemTime, health, &lastHealth, &playerHealth, food, saturation, armor, xpProgress, offset, foodOffset, widgets, icons);
+        {
+            if (shouldPlaySound)
+            {
+                float randomFloat = ((float)rand() / RAND_MAX) * 2.0f - 1.0f;
+                int randomSound = rand() % 3;
+                SetSoundPitch(hit[randomSound], randomFloat * 0.2f + 1.0f);
+                PlaySound(hit[randomSound]);
+                shouldPlaySound = 0;
+            }
+            renderHotbar(scaledResolution, &updateCounter, &healthUpdateCounter, &lastSystemTime, health, &lastHealth, &playerHealth, food, saturation, armor, xpProgress, offset, foodOffset, &shouldPlaySound, widgets, icons);
+        }
 
         if (xpLevel > 0 && live)
         {
@@ -244,12 +262,15 @@ void* raylib(void* vargp)
         EndDrawing();
     }
 
+    CloseAudioDevice();
     CloseWindow();
 
     UnloadTexture(widgets);
     UnloadTexture(icons);
     UnloadTexture(background);
     UnloadTexture(font);
+
+    for (int i = 0; i < 3; i++) UnloadSound(hit[i]);
 
     return NULL;
 }
