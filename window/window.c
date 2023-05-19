@@ -7,17 +7,14 @@
 #include <time.h>
 #include <string.h>
 
-
+#include "../server/gamedata.h"
 
 #include "render.h"
 #include "font.h"
 
 short GetAsyncKeyState(int vKey);
 
-extern int live;
-extern int cHealth;
-extern int cArmor;
-extern int cKills;
+extern GameData gameData;
 
 void getAsyncInput(bool* isKeyPressed, int* debugX, int* debugY, float* var)
 {
@@ -112,11 +109,6 @@ void* raylib(void* vargp)
     float xpProgress = 0.0f;
     int xpLevel = 0;
 
-    live = 0;
-    cHealth = 100;
-    cArmor = 0;
-    cKills = 0;
-
     bool isKeyPressed = false;
 
     int partialTicks = 0;
@@ -135,6 +127,33 @@ void* raylib(void* vargp)
     Texture2D icons = LoadTexture("res/1.19.4/assets/minecraft/textures/gui/icons.png");
     Texture2D background = LoadTexture("res/1.19.4/assets/minecraft/textures/gui/light_dirt_background.png");
     Texture2D font = LoadTexture("res/1.19.4/assets/minecraft/textures/font/ascii.png");
+
+    // items
+
+    Texture2D crossbow[5] = { 0 };
+    crossbow[0] = LoadTexture("res/1.19.4/assets/minecraft/textures/item/crossbow_pulling_0.png");        //crossbow_0
+    crossbow[1] = LoadTexture("res/1.19.4/assets/minecraft/textures/item/crossbow_pulling_1.png");        //crossbow_1
+    crossbow[2] = LoadTexture("res/1.19.4/assets/minecraft/textures/item/crossbow_pulling_2.png");        //crossbow_2
+    crossbow[3] = LoadTexture("res/1.19.4/assets/minecraft/textures/item/crossbow_standby.png");          //crossbow_standby
+    crossbow[4] = LoadTexture("res/1.19.4/assets/minecraft/textures/item/crossbow_arrow.png");            //crossbow_loaded 
+
+    Texture2D bow[4] = { 0 };
+    bow[0] = LoadTexture("res/1.19.4/assets/minecraft/textures/item/bow_pulling_0.png");
+    bow[1] = LoadTexture("res/1.19.4/assets/minecraft/textures/item/bow_pulling_1.png");
+    bow[2] = LoadTexture("res/1.19.4/assets/minecraft/textures/item/bow_pulling_2.png");
+    bow[3] = LoadTexture("res/1.19.4/assets/minecraft/textures/item/bow.png");
+    
+    Texture2D knife = LoadTexture("res/1.19.4/assets/minecraft/textures/item/iron_sword.png");
+    Texture2D defuser = LoadTexture("res/1.19.4/assets/minecraft/textures/item/shears.png");
+    Texture2D bomb = LoadTexture("res/tnt.png");
+
+    Texture2D smoke = LoadTexture("res/1.19.4/assets/minecraft/textures/item/bone_meal.png");
+    Texture2D decoy = LoadTexture("res/1.19.4/assets/minecraft/textures/item/light_gray_candle.png");
+    // might use sunflower or glowstone dust for flash
+    Texture2D flash = LoadTexture("res/1.19.4/assets/minecraft/textures/item/firework_rocket.png");
+    Texture2D molotov = LoadTexture("res/1.19.4/assets/minecraft/textures/item/blaze_powder.png");
+    Texture2D hegrenade = LoadTexture("res/1.19.4/assets/minecraft/textures/item/fire_charge.png");
+    Texture2D taser = LoadTexture("res/1.19.4/assets/minecraft/textures/item/redstone.png");
 
     Sound hit[3] = { 0 };
     hit[0] = LoadSound("res/sounds/hit1.ogg");
@@ -186,13 +205,13 @@ void* raylib(void* vargp)
         currentTime = newTime;
         accumulator += deltaTime;
 
-        health = cHealth / 5;
-        armor = cArmor / 5;
-        xpLevel = cKills;
+        health = gameData.player.state.health / 5;
+        armor = gameData.player.state.armor / 5;
+        xpLevel = gameData.player.match_stats.kills;
 
-        if (cHealth > 0 && health == 0)
+        if (gameData.player.state.health > 0 && health == 0)
             health = 1;
-        if (cArmor > 0 && armor == 0)
+        if (gameData.player.state.armor > 0 && armor == 0)
             armor = 1;
 
         while (accumulator >= timePerFrame)
@@ -230,7 +249,7 @@ void* raylib(void* vargp)
         ClearBackground(BLANK);
 
         //DrawText("Congrats! You created your first window!", 0, 0, 20, LIGHTGRAY);
-        if (live)
+        if (gameData.map.phase != NULL && !strcmp(gameData.map.phase, "live"))
         {
             if (shouldPlaySound)
             {
@@ -240,10 +259,10 @@ void* raylib(void* vargp)
                 PlaySound(hit[randomSound]);
                 shouldPlaySound = 0;
             }
-            renderHotbar(scaledResolution, &updateCounter, &healthUpdateCounter, &lastSystemTime, health, &lastHealth, &playerHealth, food, saturation, armor, xpProgress, offset, foodOffset, &shouldPlaySound, widgets, icons);
+            renderHotbar(scaledResolution, &updateCounter, &healthUpdateCounter, &lastSystemTime, health, &lastHealth, &playerHealth, food, saturation, armor, xpProgress, offset, foodOffset, &shouldPlaySound, widgets, icons, bomb);
         }
 
-        if (xpLevel > 0 && live)
+        if (gameData.map.phase != NULL && xpLevel > 0 && !strcmp(gameData.map.phase, "live"))
         {
             char charList[] = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
             char s[20];
@@ -269,6 +288,22 @@ void* raylib(void* vargp)
     UnloadTexture(icons);
     UnloadTexture(background);
     UnloadTexture(font);
+
+    for (int i = 0; i < 5; i++) UnloadTexture(crossbow[i]);
+
+    for (int i = 0; i < 4; i++) UnloadTexture(bow[i]);
+
+    UnloadTexture(knife);
+    UnloadTexture(defuser);
+    UnloadTexture(bomb);
+
+    UnloadTexture(smoke);
+    UnloadTexture(decoy);
+    UnloadTexture(flash);
+    UnloadTexture(molotov);
+    UnloadTexture(hegrenade);
+
+    UnloadTexture(taser);
 
     for (int i = 0; i < 3; i++) UnloadSound(hit[i]);
 

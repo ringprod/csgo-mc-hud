@@ -3,15 +3,203 @@
 #include <stdio.h>
 #include <string.h>
 #include "server.h"
-//#include "../include/jsmn.h"
+#include "gamedata.h"
 #include "../include/cJSON.h"
 
-#define DELIMITERS " \t\n\":{,}"
+extern GameData gameData;
 
-extern int live;
-extern int cHealth;
-extern int cArmor;
-extern int cKills;
+void parseWeapons(const cJSON* weapons) {
+    free(gameData.player.weapons.weaponArray);
+    gameData.player.weapons.count = 0;
+
+    int count = cJSON_GetArraySize(weapons);
+    gameData.player.weapons.count = count;
+    gameData.player.weapons.weaponArray = malloc(sizeof(Weapon) * count);
+
+    for (int i = 0; i < count; i++) {
+        cJSON* weapon = cJSON_GetArrayItem(weapons, i);
+
+        cJSON* name = cJSON_GetObjectItem(weapon, "name");
+        if (name != NULL || cJSON_IsString(name)) {
+            printf("name: %s\n", name->valuestring);
+            gameData.player.weapons.weaponArray[i].name = name->valuestring;
+        }
+
+        cJSON* paintkit = cJSON_GetObjectItem(weapon, "paintkit");
+        if (paintkit != NULL || cJSON_IsString(paintkit)) {
+            printf("paintkit: %s\n", paintkit->valuestring);
+            gameData.player.weapons.weaponArray[i].hasSkin = strcmp(paintkit->valuestring, "default");
+        }
+
+        cJSON* type = cJSON_GetObjectItem(weapon, "type");
+        if (type != NULL || cJSON_IsString(type)) {
+            printf("type: %s\n", type->valuestring);
+            gameData.player.weapons.weaponArray[i].type = type->valuestring;
+        }
+
+        cJSON* state = cJSON_GetObjectItem(weapon, "state");
+        if (state != NULL || cJSON_IsString(state)) {
+            printf("state: %s\n", state->valuestring);
+            gameData.player.weapons.weaponArray[i].isActive = !strcmp(state->valuestring, "active");
+        }
+
+        cJSON* ammo_clip = cJSON_GetObjectItem(weapon, "ammo_clip");
+        if (ammo_clip != NULL || cJSON_IsString(ammo_clip)) {
+            printf("ammo_clip: %d\n", ammo_clip->valueint);
+            gameData.player.weapons.weaponArray[i].ammo_clip = ammo_clip->valueint;
+        }
+
+        cJSON* ammo_clip_max = cJSON_GetObjectItem(weapon, "ammo_clip_max");
+        if (ammo_clip_max != NULL || cJSON_IsString(ammo_clip_max)) {
+            printf("ammo_clip_max: %d\n", ammo_clip_max->valueint);
+            gameData.player.weapons.weaponArray[i].ammo_clip_max = ammo_clip_max->valueint;
+        }
+        
+        cJSON* ammo_reserve = cJSON_GetObjectItem(weapon, "ammo_reserve");
+        if (ammo_reserve != NULL || cJSON_IsString(ammo_reserve)) {
+            printf("ammo_reserve: %d\n", ammo_reserve->valueint);
+            gameData.player.weapons.weaponArray[i].ammo_reserve = ammo_reserve->valueint;
+        }
+
+        printf("%d weapon = %s\n", i, name->valuestring);
+        printf("-name: %s,\nhasSkin: % d,\ntype : %s,\nisActive : %d\nammo_clip : %d,\nammo_clip_max : %d,\nammo_reserve : %d\n",
+            gameData.player.weapons.weaponArray[i].name,
+            gameData.player.weapons.weaponArray[i].hasSkin,
+            gameData.player.weapons.weaponArray[i].type,
+            gameData.player.weapons.weaponArray[i].isActive,
+            gameData.player.weapons.weaponArray[i].ammo_clip,
+            gameData.player.weapons.weaponArray[i].ammo_clip_max,
+            gameData.player.weapons.weaponArray[i].ammo_reserve
+        );
+    }
+}
+
+void parseJSON(const cJSON* root) {
+
+    // Access the 'map' object
+    cJSON* map = cJSON_GetObjectItem(root, "map");
+    if (map == NULL || !cJSON_IsObject(map)) {
+        printf("Failed to retrieve 'map' object from JSON.\n");
+    }
+    else
+    {
+        // Access the 'phase' object within 'map'
+        cJSON* phase = cJSON_GetObjectItem(map, "phase");
+        if (phase != NULL || cJSON_IsString(phase)) {
+            printf("phase: %s\n", phase->valuestring);
+            gameData.map.phase = phase->valuestring;
+        }
+        // Access the 'round' object within 'map'
+        cJSON* round = cJSON_GetObjectItem(map, "round");
+        if (round != NULL || cJSON_IsNumber(round)) {
+            printf("round: %d\n", round->valueint);
+            gameData.map.round = round->valueint;
+        }
+    }
+
+    // Acess the 'round' object
+    cJSON* round = cJSON_GetObjectItem(root, "round");
+    if (round == NULL || !cJSON_IsObject(round)) {
+        printf("Failed to retrieve 'round' object from JSON.\n");
+    }
+    else
+    {
+        // Access the 'phase' object within 'round'
+        cJSON* phase = cJSON_GetObjectItem(round, "phase");
+        if (phase != NULL || cJSON_IsString(phase)) {
+            printf("phase: %s\n", phase->valuestring);
+            gameData.round.phase = phase->valuestring;
+        }
+        // Access the 'bomb' object within 'round'
+        cJSON* bomb = cJSON_GetObjectItem(round, "bomb");
+        if (bomb != NULL || cJSON_IsString(bomb)) {
+            printf("bomb: %s\n", bomb->valuestring);
+            gameData.round.bomb = bomb->valuestring;
+        }
+    }
+
+    // Access the 'player' object
+    cJSON* player = cJSON_GetObjectItem(root, "player");
+    if (player == NULL || !cJSON_IsObject(player)) {
+        printf("Failed to retrieve 'player' object from JSON.\n");
+    }
+    else
+    {
+        // Access the 'name' object within 'player'
+        cJSON* name = cJSON_GetObjectItem(player, "name");
+        if (name != NULL || cJSON_IsString(name)) {
+            printf("name: %s\n", name->valuestring);
+            gameData.player.name = name->valuestring;
+        }
+
+        // Access the 'activity' object within 'player'
+        cJSON* activity = cJSON_GetObjectItem(player, "activity");
+        if (activity != NULL || cJSON_IsString(activity)) {
+            printf("activity: %s\n", activity->valuestring);
+            gameData.player.activity = activity->valuestring;
+        }
+
+        // Access the 'state' object within 'player'
+        cJSON* state = cJSON_GetObjectItem(player, "state");
+        if (state == NULL || !cJSON_IsObject(state)) {
+            printf("Failed to retrieve 'state' object from JSON.\n");
+        }
+        else
+        {
+            // Access the 'health' values within 'state'
+            cJSON* health = cJSON_GetObjectItem(state, "health");
+            if (health != NULL && cJSON_IsNumber(health)) {
+                printf("health: %d\n", health->valueint);
+                gameData.player.state.health = health->valueint;
+                //cHealth = health->valueint;
+            }
+            else
+            {
+                gameData.player.state.health = 100;
+            }
+
+            // Access the 'armor' values within 'state'
+            cJSON* armor = cJSON_GetObjectItem(state, "armor");
+            if (armor != NULL && cJSON_IsNumber(armor)) {
+                printf("armor: %d\n", armor->valueint);
+                gameData.player.state.armor = armor->valueint;
+                //cArmor = armor->valueint;
+            }
+
+            // Access the 'burning' values within 'state'
+            cJSON* burning = cJSON_GetObjectItem(state, "burning");
+            if (burning != NULL && cJSON_IsNumber(burning)) {
+                printf("burning: %d\n", burning->valueint);
+                gameData.player.state.burning = burning->valueint;
+            }
+
+            // Access the 'round_kills' values within 'state'
+            cJSON* round_kills = cJSON_GetObjectItem(state, "round_kills");
+            if (round_kills != NULL && cJSON_IsNumber(round_kills)) {
+                printf("round_kills: %d\n", round_kills->valueint);
+                gameData.player.state.round_kills = round_kills->valueint;
+            }
+            
+            // Access the 'round_killhs' values within 'state'
+            cJSON* round_killhs = cJSON_GetObjectItem(state, "round_killhs");
+            if (round_killhs != NULL && cJSON_IsNumber(round_killhs)) {
+                printf("round_killhs: %d\n", round_killhs->valueint);
+                gameData.player.state.round_killhs = round_killhs->valueint;
+            }
+
+            // Access the 'weapons' object within 'player'
+            cJSON* weapons = cJSON_GetObjectItem(player, "weapons");
+            if (weapons == NULL || !cJSON_IsObject(weapons)) {
+                printf("Failed to retrieve 'weapons' object from JSON.\n");
+            }
+            else
+            {
+                printf("WEAPONS COUNT: %d\n", cJSON_GetArraySize(weapons));
+                parseWeapons(weapons);
+            }
+        }
+    }
+}
 
 
 void* servermain(void *vargp)
@@ -45,10 +233,6 @@ void* servermain(void *vargp)
 
     int count = 0;
 
-    //jsmn_parser p;
-    //jsmntok_t t[128];
-    //jsmn_init(&p);
-
     while (1)
     {
         addr_len = sizeof(client_addr);
@@ -66,48 +250,16 @@ void* servermain(void *vargp)
         if (request->type == POST)
         {
             cJSON* root = cJSON_ParseWithLength(request->value, request->length);
+
             // root
             if (root == NULL) {
                 printf("Failed to parse JSON: %s\n", cJSON_GetErrorPtr());
             }
-
-            // Access the 'map' object
-            cJSON* map = cJSON_GetObjectItem(root, "map");
-            if (map == NULL || !cJSON_IsObject(map)) {
-                printf("Failed to retrieve 'map' object from JSON.\n");
+            else
+            {
+                parseJSON(root);
             }
 
-            // Access the 'phase' object
-            cJSON* phase = cJSON_GetObjectItem(map, "phase");
-            if (phase != NULL || cJSON_IsString(phase)) {
-                printf("phase: %s\n", phase->valuestring);
-                live = strcmp(phase->valuestring, "live") == 0;
-            }
-
-            // Access the 'player' object
-            cJSON* player = cJSON_GetObjectItem(root, "player");
-            if (player == NULL || !cJSON_IsObject(player)) {
-                printf("Failed to retrieve 'player' object from JSON.\n");
-            }
-
-            // Access the 'state' object within 'player'
-            cJSON* state = cJSON_GetObjectItem(player, "state");
-            if (state == NULL || !cJSON_IsObject(state)) {
-                printf("Failed to retrieve 'state' object from JSON.\n");
-            }
-
-            // Access the 'health' and 'armor' values within 'state'
-            cJSON* health = cJSON_GetObjectItem(state, "health");
-            if (health != NULL && cJSON_IsNumber(health)) {
-                printf("Health: %d\n", health->valueint);
-                cHealth = health->valueint;
-            }
-
-            cJSON* armor = cJSON_GetObjectItem(state, "armor");
-            if (armor != NULL && cJSON_IsNumber(armor)) {
-                printf("Armor: %d\n", armor->valueint);
-                cArmor = armor->valueint;
-            }
             cJSON_Delete(root);
 
             /*int curlyBracesCount = 0;

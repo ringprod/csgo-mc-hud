@@ -1,7 +1,7 @@
 #include "../include/raylib.h"
 #include "render.h"
 
-void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* lastSystemTime, int health, int* lastHealth, int* playerHealth, int foodLevel, int saturation, int armor, float xpProgress, int* offset, int* foodOffset, int* shouldPlaySound, Texture2D widgets, Texture2D icons)
+void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* lastSystemTime, int health, int* lastHealth, int* playerHealth, int foodLevel, int saturation, int armor, float xpProgress, int* offset, int* foodOffset, int* shouldPlaySound, Texture2D widgets, Texture2D icons, Texture2D bomb)
 {
     int centerX = GetScreenWidth() / 2;
     int bottomY = GetScreenHeight();
@@ -340,17 +340,17 @@ void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* l
     // hotbar items
     for (int l = 0; l < 9; ++l)
     {
-        int i1 = (GetScreenWidth() / sr / 2 + (l * 20 + 3) - hotbarWidth / 2) * sr;
-        int j1 = (GetScreenHeight() / sr - (16 - 3) - 5) * sr;
+        int i1 = (GetScreenWidth() / sr / 2 + (l * 20 + 4) - hotbarWidth / 2) * sr;
+        int j1 = (GetScreenHeight() / sr - (16 - 3) - 6) * sr;
         //renderHotbarItem(i1, j1, partialTicks/*, entityplayer, entityplayer.inventory.mainInventory.get(l)*/ );
-        Rectangle item = { 16, 54, 16, 16 };
+        Rectangle item = { 16, 1, bomb.width -32, bomb.height-2 };
         Rectangle itemDestRect = {
             i1,
-            j1,
-            16 * sr,
-            16 * sr
+            j1+1+(sr*0.3),
+            14 * sr,
+            16 * sr - (sr*0.6)
         };
-        DrawTexturePro(icons, item, itemDestRect, origin, 0, WHITE);
+        DrawTexturePro(bomb, item, itemDestRect, origin, 0, WHITE);
     }
 }
 
@@ -358,3 +358,25 @@ void renderHotbarItem(int hotbarX, int hotbarY, float elapsedFrameTime/*, Entity
 {
     // todo
 }
+
+#if 0
+// minecraft gui
+private void renderSlot(PoseStack poseStack, int n, int n2, float f, Player player, ItemStack itemStack, int n3) {
+    if (itemStack.isEmpty()) {
+        return;
+    }
+    float f2 = (float)itemStack.getPopTime() - f;
+    if (f2 > 0.0f) {
+        float f3 = 1.0f + f2 / 5.0f;
+        poseStack.pushPose();
+        poseStack.translate(n + 8, n2 + 12, 0.0f);
+        poseStack.scale(1.0f / f3, (f3 + 1.0f) / 2.0f, 1.0f);
+        poseStack.translate(-(n + 8), -(n2 + 12), 0.0f);
+    }
+    this.itemRenderer.renderAndDecorateItem(poseStack, player, itemStack, n, n2, n3);
+    if (f2 > 0.0f) {
+        poseStack.popPose();
+    }
+    this.itemRenderer.renderGuiItemDecorations(poseStack, this.minecraft.font, itemStack, n, n2);
+    }
+#endif

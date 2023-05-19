@@ -1,7 +1,10 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\include",
+    "\\server",
+    "\\window"
   ],
-  "SelectedNode": "\\hud.exe",
+  "SelectedNode": "\\include\\cJSON.h",
   "PreviewInSolutionExplorer": false
 }

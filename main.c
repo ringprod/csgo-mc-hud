@@ -4,11 +4,9 @@
 #include <pthread.h>
 #include "window/window.h"
 #include "server/server.h"
+#include "server/gamedata.h"
 
-int live;
-int cHealth;
-int cArmor;
-int cKills;
+GameData gameData;
 
 int main()
 {
