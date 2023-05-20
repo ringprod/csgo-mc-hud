@@ -8,7 +8,52 @@
 
 extern GameData gameData;
 
+#include <stdio.h>
+
+void printGameData() {
+    printf("Map:\n");
+    printf("Phase: %s\n", gameData.map.phase);
+    printf("Round: %d\n", gameData.map.round);
+
+    printf("\nRound:\n");
+    printf("Phase: %s\n", gameData.round.phase);
+    printf("Bomb: %s\n", gameData.round.bomb);
+
+    printf("\nPlayer:\n");
+    printf("Name: %s\n", gameData.player.name);
+    printf("Activity: %s\n", gameData.player.activity);
+
+    printf("State:\n");
+    printf("Health: %d\n", gameData.player.state.health);
+    printf("Armor: %d\n", gameData.player.state.armor);
+    printf("Burning: %d\n", gameData.player.state.burning);
+    printf("Round Kills: %d\n", gameData.player.state.round_kills);
+    printf("Round Kill Headshots: %d\n", gameData.player.state.round_killhs);
+
+    printf("Match Stats:\n");
+    printf("Kills: %d\n", gameData.player.match_stats.kills);
+    printf("Deaths: %d\n", gameData.player.match_stats.deaths);
+    printf("MVPS: %d\n", gameData.player.match_stats.mvps);
+
+    printf("Weapons:\n");
+    printf("Count: %zu\n", gameData.player.weapons.count);
+    for (size_t i = 0; i < gameData.player.weapons.count; i++) {
+        Weapon weapon = gameData.player.weapons.weaponArray[i];
+        printf("Weapon %d:\n", i + 1);
+        printf("Name: %s\n", weapon.name);
+        printf("Has Skin: %d\n", weapon.hasSkin);
+        printf("Type: %s\n", weapon.type);
+        printf("Is Active: %d\n", weapon.isActive);
+        printf("Ammo Clip: %d\n", weapon.ammo_clip);
+        printf("Ammo Clip Max: %d\n", weapon.ammo_clip_max);
+        printf("Ammo Reserve: %d\n", weapon.ammo_reserve);
+        printf("\n");
+    }
+}
+
+
 void parseWeapons(const cJSON* weapons) {
+    
     free(gameData.player.weapons.weaponArray);
     gameData.player.weapons.count = 0;
 
@@ -20,43 +65,45 @@ void parseWeapons(const cJSON* weapons) {
         cJSON* weapon = cJSON_GetArrayItem(weapons, i);
 
         cJSON* name = cJSON_GetObjectItem(weapon, "name");
-        if (name != NULL || cJSON_IsString(name)) {
+        if (name != NULL && cJSON_IsString(name)) {
             printf("name: %s\n", name->valuestring);
-            gameData.player.weapons.weaponArray[i].name = name->valuestring;
+            free(gameData.player.weapons.weaponArray[i].name);
+            gameData.player.weapons.weaponArray[i].name = strdup(name->valuestring);
         }
 
         cJSON* paintkit = cJSON_GetObjectItem(weapon, "paintkit");
-        if (paintkit != NULL || cJSON_IsString(paintkit)) {
+        if (paintkit != NULL && cJSON_IsString(paintkit)) {
             printf("paintkit: %s\n", paintkit->valuestring);
             gameData.player.weapons.weaponArray[i].hasSkin = strcmp(paintkit->valuestring, "default");
         }
 
         cJSON* type = cJSON_GetObjectItem(weapon, "type");
-        if (type != NULL || cJSON_IsString(type)) {
+        if (type != NULL && cJSON_IsString(type)) {
             printf("type: %s\n", type->valuestring);
-            gameData.player.weapons.weaponArray[i].type = type->valuestring;
+            free(gameData.player.weapons.weaponArray[i].type);
+            gameData.player.weapons.weaponArray[i].type = strdup(type->valuestring);
         }
 
         cJSON* state = cJSON_GetObjectItem(weapon, "state");
-        if (state != NULL || cJSON_IsString(state)) {
+        if (state != NULL && cJSON_IsString(state)) {
             printf("state: %s\n", state->valuestring);
             gameData.player.weapons.weaponArray[i].isActive = !strcmp(state->valuestring, "active");
         }
 
         cJSON* ammo_clip = cJSON_GetObjectItem(weapon, "ammo_clip");
-        if (ammo_clip != NULL || cJSON_IsString(ammo_clip)) {
+        if (ammo_clip != NULL && cJSON_IsString(ammo_clip)) {
             printf("ammo_clip: %d\n", ammo_clip->valueint);
             gameData.player.weapons.weaponArray[i].ammo_clip = ammo_clip->valueint;
         }
 
         cJSON* ammo_clip_max = cJSON_GetObjectItem(weapon, "ammo_clip_max");
-        if (ammo_clip_max != NULL || cJSON_IsString(ammo_clip_max)) {
+        if (ammo_clip_max != NULL && cJSON_IsString(ammo_clip_max)) {
             printf("ammo_clip_max: %d\n", ammo_clip_max->valueint);
             gameData.player.weapons.weaponArray[i].ammo_clip_max = ammo_clip_max->valueint;
         }
         
         cJSON* ammo_reserve = cJSON_GetObjectItem(weapon, "ammo_reserve");
-        if (ammo_reserve != NULL || cJSON_IsString(ammo_reserve)) {
+        if (ammo_reserve != NULL && cJSON_IsString(ammo_reserve)) {
             printf("ammo_reserve: %d\n", ammo_reserve->valueint);
             gameData.player.weapons.weaponArray[i].ammo_reserve = ammo_reserve->valueint;
         }
@@ -85,13 +132,14 @@ void parseJSON(const cJSON* root) {
     {
         // Access the 'phase' object within 'map'
         cJSON* phase = cJSON_GetObjectItem(map, "phase");
-        if (phase != NULL || cJSON_IsString(phase)) {
+        if (phase != NULL && cJSON_IsString(phase)) {
             printf("phase: %s\n", phase->valuestring);
-            gameData.map.phase = phase->valuestring;
+            free(gameData.map.phase);
+            gameData.map.phase = strdup(phase->valuestring);
         }
         // Access the 'round' object within 'map'
         cJSON* round = cJSON_GetObjectItem(map, "round");
-        if (round != NULL || cJSON_IsNumber(round)) {
+        if (round != NULL && cJSON_IsNumber(round)) {
             printf("round: %d\n", round->valueint);
             gameData.map.round = round->valueint;
         }
@@ -99,22 +147,24 @@ void parseJSON(const cJSON* root) {
 
     // Acess the 'round' object
     cJSON* round = cJSON_GetObjectItem(root, "round");
-    if (round == NULL || !cJSON_IsObject(round)) {
+    if (round == NULL && !cJSON_IsObject(round)) {
         printf("Failed to retrieve 'round' object from JSON.\n");
     }
     else
     {
         // Access the 'phase' object within 'round'
         cJSON* phase = cJSON_GetObjectItem(round, "phase");
-        if (phase != NULL || cJSON_IsString(phase)) {
+        if (phase != NULL && cJSON_IsString(phase)) {
             printf("phase: %s\n", phase->valuestring);
-            gameData.round.phase = phase->valuestring;
+            free(gameData.round.phase);
+            gameData.round.phase = strdup(phase->valuestring);
         }
         // Access the 'bomb' object within 'round'
         cJSON* bomb = cJSON_GetObjectItem(round, "bomb");
-        if (bomb != NULL || cJSON_IsString(bomb)) {
+        if (bomb != NULL && cJSON_IsString(bomb)) {
             printf("bomb: %s\n", bomb->valuestring);
-            gameData.round.bomb = bomb->valuestring;
+            free(gameData.round.bomb);
+            gameData.round.bomb = strdup(bomb->valuestring);
         }
     }
 
@@ -127,16 +177,18 @@ void parseJSON(const cJSON* root) {
     {
         // Access the 'name' object within 'player'
         cJSON* name = cJSON_GetObjectItem(player, "name");
-        if (name != NULL || cJSON_IsString(name)) {
+        if (name != NULL && cJSON_IsString(name)) {
             printf("name: %s\n", name->valuestring);
-            gameData.player.name = name->valuestring;
+            free(gameData.player.name);
+            gameData.player.name = strdup(name->valuestring);
         }
 
         // Access the 'activity' object within 'player'
         cJSON* activity = cJSON_GetObjectItem(player, "activity");
-        if (activity != NULL || cJSON_IsString(activity)) {
+        if (activity != NULL && cJSON_IsString(activity)) {
             printf("activity: %s\n", activity->valuestring);
-            gameData.player.activity = activity->valuestring;
+            free(gameData.player.activity);
+            gameData.player.activity = strdup(activity->valuestring);
         }
 
         // Access the 'state' object within 'player'
@@ -191,6 +243,7 @@ void parseJSON(const cJSON* root) {
             cJSON* weapons = cJSON_GetObjectItem(player, "weapons");
             if (weapons == NULL || !cJSON_IsObject(weapons)) {
                 printf("Failed to retrieve 'weapons' object from JSON.\n");
+
             }
             else
             {
@@ -199,6 +252,13 @@ void parseJSON(const cJSON* root) {
             }
         }
     }
+}
+
+
+void FreeRequest(REQUEST* request)
+{
+    free(request->value);
+    free(request);
 }
 
 
@@ -252,175 +312,20 @@ void* servermain(void *vargp)
             cJSON* root = cJSON_ParseWithLength(request->value, request->length);
 
             // root
-            if (root == NULL) {
+                printf("\njson::\n%s\n^^end of json^^\n", cJSON_Print(root));
+            if (root == NULL || root == 0) {
                 printf("Failed to parse JSON: %s\n", cJSON_GetErrorPtr());
             }
             else
             {
                 parseJSON(root);
             }
+            printf("\n\ngame data dump :\n ");
+            printGameData();
+            printf("\n\nend of data dump.\n");
 
             cJSON_Delete(root);
 
-            /*int curlyBracesCount = 0;
-            int squareBracketsCount = 0;
-
-            char* token = strtok(jsonStringCopy, "{[,]}");
-            while (token != NULL) {
-                if (strcmp(token, "{") == 0) {
-                    curlyBracesCount++;
-                }
-                else if (strcmp(token, "}") == 0) {
-                    curlyBracesCount--;
-                }
-                else if (strcmp(token, "[") == 0) {
-                    squareBracketsCount++;
-                }
-                else if (strcmp(token, "]") == 0) {
-                    squareBracketsCount--;
-                }
-
-                token = strtok(NULL, "{[,]}");
-            }
-
-            if (curlyBracesCount == 0 && squareBracketsCount == 0) {
-                printf("Valid af!\n");
-            }
-            else {
-                printf("NOOOOOOOOOO!\n");
-            }
-
-            int r = jsmn_parse(&p, jsonStringCopy, strlen(jsonStringCopy), t, 128);
-
-            if (r < 0) {
-                printf("Failed to parse JSON: %d\n", r);
-            }*/
-#if 0
-            live = 1;
-            char* token = strtok(request->value, DELIMITERS);
-            while (token != NULL) {
-                if (strcmp(token, "map") == 0) {
-                    while (token != NULL && strcmp(token, "phase") != 0) {
-                        token = strtok(NULL, DELIMITERS);  // Move to the next token
-                    }
-                    if (token != NULL) {
-                        // Found the "phase" key
-                        token = strtok(NULL, DELIMITERS);  // Move to the next token (value)
-                        if (token != NULL) {
-                            // Extract the Map's phase value
-                            char phase[30];
-                            strcpy(phase, token);
-                            printf("Map's phase: %s\n", phase);
-                            if (strcmp(phase, "live") == 0)
-                            {
-                                printf("phase is live!\n");
-                                //islive = 1;
-                            }
-                            else
-                            {
-                                printf("phase is not live!\n");
-                                //islive = 0;
-                            }
-                            //cHealth = health;
-                        }
-                        else {
-                            printf("Failed to extract maps's phase.\n");
-                        }
-                    }
-                    else {
-                        printf("Map's phase not found.\n");
-                    }
-                }
-
-                if (strcmp(token, "player") == 0) {
-                    // Found the "player" key
-                    //token = strtok(NULL, DELIMITERS);  // Move to the next token
-                    while (token != NULL && strcmp(token, "activity") != 0) {
-                        token = strtok(NULL, DELIMITERS);  // Move to the next token
-                    }
-                    if (token != NULL) {
-                        // Found the "activiy" key
-                        token = strtok(NULL, DELIMITERS);  // Move to the next token (value)
-                        if (token != NULL) {
-                            // Extract the player's activity value
-                            char activity[30];
-                            strcpy(activity, token);
-                            printf("Player's activity: %s\n", activity);
-                            //cHealth = health;
-                        }
-                        else {
-                            printf("Failed to extract player's activity.\n");
-                        }
-                    }
-                    else {
-                        printf("Player's activity not found.\n");
-                    }
-
-                    token = strtok(NULL, DELIMITERS);  // Move to the next token
-                    while (token != NULL && strcmp(token, "health") != 0) {
-                        token = strtok(NULL, DELIMITERS);  // Move to the next token
-                    }
-                    if (token != NULL) {
-                        // Found the "health" key
-                        token = strtok(NULL, DELIMITERS);  // Move to the next token (value)
-                        if (token != NULL) {
-                            // Extract the player's health value
-                            int health = atoi(token);
-                            printf("Player's health: %d\n", health);
-                            cHealth = health;
-                        }
-                        else {
-                            printf("Failed to extract player's health.\n");
-                        }
-                    }
-                    else {
-                        printf("Player's health not found.\n");
-                    }
-
-                    while (token != NULL && strcmp(token, "armor") != 0) {
-                        token = strtok(NULL, DELIMITERS);  // Move to the next token
-                    }
-                    if (token != NULL) {
-                        // Found the "armor" key
-                        token = strtok(NULL, DELIMITERS);  // Move to the next token (value)
-                        if (token != NULL) {
-                            // Extract the player's armor value
-                            int armor = atoi(token);
-                            printf("Player's armor: %d\n", armor);
-                            cArmor = armor;
-                        }
-                        else {
-                            printf("Failed to extract player's armor.\n");
-                        }
-                    }
-                    else {
-                        printf("Player's armor not found.\n");
-                    }
-
-                    while (token != NULL && strcmp(token, "kills") != 0) {
-                        token = strtok(NULL, DELIMITERS);  // Move to the next token
-                    }
-                    if (token != NULL) {
-                        // Found the "kills" key
-                        token = strtok(NULL, DELIMITERS);  // Move to the next token (value)
-                        if (token != NULL) {
-                            // Extract the player's kills value
-                            int kills = atoi(token);
-                            printf("Player's kills: %d\n", kills);
-                            cKills = kills;
-                        }
-                        else {
-                            printf("Failed to extract player's kills.\n");
-                        }
-                    }
-                    else {
-                        printf("Player's kills not found.\n");
-                    }
-                    break;
-                }
-                token = strtok(NULL, DELIMITERS);  // Move to the next token
-            }
-#endif       
             printf("postd\n");
         }
         FreeRequest(request);

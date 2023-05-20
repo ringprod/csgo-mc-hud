@@ -75,6 +75,11 @@ typedef struct {
 } Weapon;
 
 typedef struct {
+	size_t count;
+	Weapon* weaponArray;
+} Weapons;
+
+typedef struct {
     char* name;
     char* activity;
 
@@ -92,10 +97,7 @@ typedef struct {
         int mvps;
     } match_stats;
 
-    struct {
-        size_t count;
-		Weapon* weaponArray;
-    } weapons;
+	Weapons weapons;
 } Player;
 
 typedef struct {

@@ -61,6 +61,7 @@ REQUEST* GetRequest(SOCKET sock)
 
     request = malloc(sizeof(REQUEST));
     request->type = get_request_type(buf);
+    request->originalValue = buf;
 
     // Find the position of the double newline characters
     char* doubleNewlinePos = strstr(buf, "\r\n\r\n");
@@ -82,11 +83,5 @@ REQUEST* GetRequest(SOCKET sock)
     request->length = msg_len;
 
     return request;
-}
-
-void FreeRequest(REQUEST* request)
-{
-    free(request->value);
-    free(request);
 }
 
