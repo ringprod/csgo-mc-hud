@@ -1,7 +1,7 @@
 #include "../include/raylib.h"
 #include "render.h"
 
-void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* lastSystemTime, int health, int* lastHealth, int* playerHealth, int foodLevel, int saturation, int armor, float xpProgress, int* offset, int* foodOffset, int* shouldPlaySound, Texture2D widgets, Texture2D icons, Texture2D bomb)
+void renderHotbar(int sr, long* updateCounter, long* healthUpdateCounter, long* lastSystemTime, int health, int* lastHealth, int* playerHealth, int foodLevel, int saturation, int armor, float xpProgress, int* offset, int* foodOffset, int* shouldPlaySound, Texture2D widgets, Texture2D icons, Texture2D bomb)
 {
     int centerX = GetScreenWidth() / 2;
     int bottomY = GetScreenHeight();
@@ -151,7 +151,7 @@ void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* l
 
     for (int j5 = ceil((f + (float)k1) / 2.0F) - 1; j5 >= 0; --j5)
     {
-        int k5 = 16; //texture offset for heart
+        //int k5 = 16; //texture offset for heart
 
         int i4 = 0;
 
@@ -174,7 +174,7 @@ void renderHotbar(int sr, int* updateCounter, long* healthUpdateCounter, long* l
             l4 -= 2;
         }
 
-        int i5 = 0;
+        //int i5 = 0;
 
         //printf("%d %d %d %d %d %d \n", k4, l4, 16 + i4 * 9, 9 * i5, 9, 9);
         {

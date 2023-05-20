@@ -5,9 +5,9 @@
 
 void readFontTexture(Texture2D texture, int* charWidths)
 {
-    const int charWidth = 8;
-    const int charHeight = 8;
-    const int spacing = 0;
+    //const int charWidth = 8;
+    //const int charHeight = 8;
+    //const int spacing = 0;
 
     const int charsPerRow = 16;
     const int charsPerCol = 16;
@@ -23,7 +23,7 @@ void readFontTexture(Texture2D texture, int* charWidths)
     {
         for (int characterCol = 0; characterCol < charsPerCol; characterCol++)
         {
-            int index = characterRow * charsPerCol + characterCol;
+            //int index = characterRow * charsPerCol + characterCol;
             int width = 0;
 
             for (int px = 7; px >= 0; px--)

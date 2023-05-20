@@ -6,7 +6,6 @@ void* servermain(void *vargp);
 typedef struct {
     int  type;
     char *value;
-    char* originalValue;
     int length;
 } REQUEST;
 

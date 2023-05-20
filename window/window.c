@@ -82,8 +82,8 @@ void getAsyncInput(bool* isKeyPressed, int* debugX, int* debugY, float* var)
 void* raylib(void* vargp)
 {
     int debugX = 0, debugY = 0;
-    bool xEditMode = false;
-    bool yEditMode = false;
+    //bool xEditMode = false;
+    //bool yEditMode = false;
 
     time_t t;
     srand((unsigned)time(&t));
@@ -111,7 +111,7 @@ void* raylib(void* vargp)
 
     bool isKeyPressed = false;
 
-    int partialTicks = 0;
+    //int partialTicks = 0;
 
     SetConfigFlags(FLAG_WINDOW_TRANSPARENT | FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_MOUSE_PASSTHROUGH | FLAG_WINDOW_TOPMOST | FLAG_WINDOW_RESIZABLE);
     
@@ -188,7 +188,7 @@ void* raylib(void* vargp)
     double accumulator = 0.0;
     double timePerFrame = 1.0 / 20.0;
 
-    double startTime = GetTime();
+    //double startTime = GetTime();
 
     long updateCounter;
     long healthUpdateCounter;
@@ -264,7 +264,7 @@ void* raylib(void* vargp)
 
         if (gameData.map.phase != NULL && xpLevel > 0 && !strcmp(gameData.map.phase, "live"))
         {
-            char charList[] = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+            //char charList[] = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
             char s[20];
             int textSize = 5;
 
@@ -273,7 +273,7 @@ void* raylib(void* vargp)
             int centerWidth = GetScreenWidth() / 2;
             int hotbarHeight = (GetScreenHeight() / scaledResolution - (31 + 4)) * scaledResolution;
 
-            int offset = (strlen(s) == 1) ? 3 : strlen(s) * 4;
+            //int offset = (strlen(s) == 1) ? 3 : strlen(s) * 4;
             drawOutlinedMCText(font, s, centerWidth - (getMCTextWidth(s, textSize, font, charWidths) / 2 * scaledResolution) - 1 * scaledResolution, hotbarHeight, textSize, 1, YELLOW, chars, charWidths, scaledResolution);
         }
         DrawFPS(10, 10);
