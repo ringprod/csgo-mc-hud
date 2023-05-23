@@ -79,6 +79,58 @@ void getAsyncInput(bool* isKeyPressed, int* debugX, int* debugY, float* var)
     }
 }
 
+void displayGameData() {
+    //DrawText("Congrats! You created your first window!", 0, 0, 20, LIGHTGRAY);
+    DrawRectangle(0, 0, 900, 900, (Color){ 0, 0, 0, 200 });
+    DrawText(TextFormat("Map:\nPhase: %s\nRound: %d\nRound:\nPhase: %s\nBomb: %s\nPlayer:\nName: %s\nActivity: %s\nState:\nHealth: %d\nArmor: %d\nBurning: %d\nRound Kills: %d\nRound Kill Headshots: %d\nMatch Stats:\nKills: %d\nDeaths: %d\nMVPS: %d\nWeapons:\nCount: %I64d",
+        gameData.map.phase, gameData.map.round,
+        gameData.round.phase, gameData.round.bomb,
+        gameData.player.name, gameData.player.activity,
+        gameData.player.state.health, gameData.player.state.armor, gameData.player.state.burning, gameData.player.state.round_kills, gameData.player.state.round_killhs,
+        gameData.player.match_stats.kills, gameData.player.match_stats.deaths, gameData.player.match_stats.mvps, gameData.player.weapons.count), 10, 10, 10, LIGHTGRAY);
+    /*DrawText("Map:", 10, 10, 10, LIGHTGRAY);
+    DrawText(TextFormat("Phase: %s", gameData.map.phase), 20, 40, 20, LIGHTGRAY);
+    DrawText(TextFormat("Round: %d", gameData.map.round), 20, 70, 20, LIGHTGRAY);
+   
+    DrawText("Round:", 10, 100, 20, LIGHTGRAY);
+    DrawText(TextFormat("Phase: %s", gameData.round.phase), 20, 130, 20, LIGHTGRAY);
+    DrawText(TextFormat("Bomb: %s", gameData.round.bomb), 20, 160, 20, LIGHTGRAY);
+
+    DrawText("Player:", 10, 190, 20, LIGHTGRAY);
+    DrawText(TextFormat("Name: %s", gameData.player.name), 20, 220, 20, LIGHTGRAY);
+    DrawText(TextFormat("Activity: %s", gameData.player.activity), 20, 250, 20, LIGHTGRAY);
+
+    DrawText("State:", 10, 280, 20, LIGHTGRAY);
+    DrawText(TextFormat("Health: %d", gameData.player.state.health), 20, 310, 20, LIGHTGRAY);
+    DrawText(TextFormat("Armor: %d", gameData.player.state.armor), 20, 340, 20, LIGHTGRAY);
+    DrawText(TextFormat("Burning: %d", gameData.player.state.burning), 20, 370, 20, LIGHTGRAY);
+    DrawText(TextFormat("Round Kills: %d", gameData.player.state.round_kills), 20, 340, 20, LIGHTGRAY);
+    DrawText(TextFormat("Round Kill Headshots: %d", gameData.player.state.round_killhs), 20, 400, 20, LIGHTGRAY);
+
+    DrawText("Match Stats:", 10, 430, 20, LIGHTGRAY);
+    DrawText(TextFormat("Kills: %d", gameData.player.match_stats.kills), 20, 460, 20, LIGHTGRAY);
+    DrawText(TextFormat("Deaths: %d", gameData.player.match_stats.deaths), 20, 490, 20, LIGHTGRAY);
+    DrawText(TextFormat("MVPS: %d", gameData.player.match_stats.mvps), 20, 520, 20, LIGHTGRAY);
+
+    DrawText("Weapons:", 10, 550, 20, LIGHTGRAY);
+    DrawText(TextFormat("Count: %I64d", gameData.player.weapons.count), 20, 580, 20, LIGHTGRAY);*/
+
+    for (size_t i = 0; i < gameData.player.weapons.count; i++) {
+        Weapon weapon = gameData.player.weapons.weaponArray[i];
+        DrawText(TextFormat("Weapon: %I64d\nName: %s\nHas Skin: %d\nType: %s\nIs Active: %d\nAmmo Clip: %d\nAmmo Clip Max: %d\nAmmo Reserve %d",
+            i+1, weapon.name, weapon.hasSkin, weapon.type, weapon.isActive, weapon.ammo_clip, weapon.ammo_clip_max, weapon.ammo_reserve), 20 + 100 * i, 350, 10, LIGHTGRAY);
+        //DrawText(TextFormat("Weapon: %I64d", i+1), 20 + i * 300, 610 + (i+0) * 30, 20, LIGHTGRAY);
+        //DrawText(TextFormat("Name: %s", weapon.name), 20 + i * 300, 610 + (i+1) * 30, 20, LIGHTGRAY);
+        //DrawText(TextFormat("Has Skin: %d", weapon.hasSkin), 20 + i * 300, 610 + (i+2) * 30, 20, LIGHTGRAY);
+        //DrawText(TextFormat("Type: %s", weapon.type), 20 + i * 300, 610 + (i+3) * 30, 20, LIGHTGRAY);
+        //DrawText(TextFormat("Is Active: %d", weapon.isActive), 20 + i * 300, 610 + (i+4) * 30, 20, LIGHTGRAY);
+        //DrawText(TextFormat("Ammo Clip: %d", weapon.ammo_clip), 20 + i * 300, 610 + (i+5) * 30, 20, LIGHTGRAY);
+        //DrawText(TextFormat("Ammo Clip Max: %d", weapon.ammo_clip_max), 20 + i * 300, 610 + (i+6) * 30, 20, LIGHTGRAY);
+        //DrawText(TextFormat("Ammo Reserve %d", weapon.ammo_reserve), 20 + i * 300, 610 + (i+7) * 30, 20, LIGHTGRAY);
+        
+    }
+}
+
 void* raylib(void* vargp)
 {
     int debugX = 0, debugY = 0;
@@ -245,6 +297,7 @@ void* raylib(void* vargp)
         }
 
         getAsyncInput(&isKeyPressed, &debugX, &debugY, &xpProgress);
+        displayGameData(); //DOESNT WORK WILL CRASH
         BeginDrawing();
         ClearBackground(BLANK);
 
@@ -276,7 +329,7 @@ void* raylib(void* vargp)
             //int offset = (strlen(s) == 1) ? 3 : strlen(s) * 4;
             drawOutlinedMCText(font, s, centerWidth - (getMCTextWidth(s, textSize, font, charWidths) / 2 * scaledResolution) - 1 * scaledResolution, hotbarHeight, textSize, 1, YELLOW, chars, charWidths, scaledResolution);
         }
-        DrawFPS(10, 10);
+        //DrawFPS(10, 10);
 
         EndDrawing();
     }

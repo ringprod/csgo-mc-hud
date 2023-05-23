@@ -52,15 +52,17 @@ void printGameData() {
 }
 
 void parseWeapons(const cJSON* weapons) {
-    free(gameData.player.weapons.weaponArray);
-    gameData.player.weapons.count = 0;
+    //free(gameData.player.weapons.weaponArray);
+    //gameData.player.weapons.count = 0;
 
-    int count = cJSON_GetArraySize(weapons);
+    size_t count = cJSON_GetArraySize(weapons);
+    //gameData.player.weapons.weaponArray = (Weapon*)malloc(sizeof(Weapon) * count);
+    printf("\n\nParseWeapons\nweaponArray = %I64d\n", count);
     gameData.player.weapons.count = count;
-    gameData.player.weapons.weaponArray = malloc(sizeof(Weapon) * count);
 
     for (int i = 0; i < count; i++) {
         cJSON* weapon = cJSON_GetArrayItem(weapons, i);
+        printf("weapon: %d\n", i);
 
         /*cJSON* name = cJSON_GetObjectItem(weapon, "name");
         if (name != NULL || cJSON_IsString(name)) {
@@ -72,16 +74,16 @@ void parseWeapons(const cJSON* weapons) {
         }*/
         cJSON* name = cJSON_GetObjectItem(weapon, "name");
         if (name != NULL && cJSON_IsString(name)) {
-            printf("name: %s\n", name->valuestring);
+            printf("\tname: %s\n", name->valuestring);
             const char* src = name->valuestring;
             size_t length = strlen(src) + 1;
-            gameData.player.weapons.weaponArray[i].name = malloc(length);
+            gameData.player.weapons.weaponArray[i].name = (char*)malloc(length);
             if (gameData.player.weapons.weaponArray[i].name != NULL) {
                 if (strcpy_s(gameData.player.weapons.weaponArray[i].name, length, src) != 0) {
                     // Error occurred during string copy
                     printf("Failed to copy name string.\n");
                     free(gameData.player.weapons.weaponArray[i].name);
-                    gameData.player.weapons.weaponArray[i].name = NULL;
+                    //gameData.player.weapons.weaponArray[i].name = NULL;
                 }
             }
             else {
@@ -91,30 +93,41 @@ void parseWeapons(const cJSON* weapons) {
         }
 
         cJSON* paintkit = cJSON_GetObjectItem(weapon, "paintkit");
-        if (paintkit != NULL || cJSON_IsString(paintkit)) {
-            printf("paintkit: %s\n", paintkit->valuestring);
+        if (paintkit != NULL && cJSON_IsString(paintkit)) {
+            printf("\tpaintkit: %s\n", paintkit->valuestring);
             gameData.player.weapons.weaponArray[i].hasSkin = strcmp(paintkit->valuestring, "default");
         }
 
         cJSON* type = cJSON_GetObjectItem(weapon, "type");
-        if (type != NULL || cJSON_IsString(type)) {
-            printf("type: %s\n", type->valuestring);
+        if (type != NULL && cJSON_IsString(type)) {
+            printf("\ttype: %s\n", type->valuestring);
             const char* src = type->valuestring;
             size_t length = strlen(src) + 1;
-            gameData.player.weapons.weaponArray[i].type = malloc(length);
+            gameData.player.weapons.weaponArray[i].type = (char*)malloc(length);
             strcpy_s(gameData.player.weapons.weaponArray[i].type, length, type->valuestring);
+        }
+        else
+        {
+            if (strcmp(gameData.player.weapons.weaponArray[i].name, "weapon_taser") == 0)
+            {
+                printf("\ttype: %s\n", "taser");
+                const char* src = "taser";
+                size_t length = strlen(src) + 1;
+                gameData.player.weapons.weaponArray[i].type = (char*)malloc(length);
+                strcpy_s(gameData.player.weapons.weaponArray[i].type, length, "taser");
+            }
         }
 
 
         cJSON* state = cJSON_GetObjectItem(weapon, "state");
-        if (state != NULL || cJSON_IsString(state)) {
-            printf("state: %s\n", state->valuestring);
+        if (state != NULL && cJSON_IsString(state)) {
+            printf("\tstate: %s\n", state->valuestring);
             gameData.player.weapons.weaponArray[i].isActive = !strcmp(state->valuestring, "active");
         }
 
         cJSON* ammo_clip = cJSON_GetObjectItem(weapon, "ammo_clip");
-        if (ammo_clip != NULL || cJSON_IsString(ammo_clip)) {
-            printf("ammo_clip: %d\n", ammo_clip->valueint);
+        if (ammo_clip != NULL && cJSON_IsString(ammo_clip)) {
+            printf("\tammo_clip: %d\n", ammo_clip->valueint);
             gameData.player.weapons.weaponArray[i].ammo_clip = ammo_clip->valueint;
         }
         else
@@ -123,8 +136,8 @@ void parseWeapons(const cJSON* weapons) {
         }
 
         cJSON* ammo_clip_max = cJSON_GetObjectItem(weapon, "ammo_clip_max");
-        if (ammo_clip_max != NULL || cJSON_IsString(ammo_clip_max)) {
-            printf("ammo_clip_max: %d\n", ammo_clip_max->valueint);
+        if (ammo_clip_max != NULL && cJSON_IsString(ammo_clip_max)) {
+            printf("\tammo_clip_max: %d\n", ammo_clip_max->valueint);
             gameData.player.weapons.weaponArray[i].ammo_clip_max = ammo_clip_max->valueint;
         }
         else
@@ -133,8 +146,8 @@ void parseWeapons(const cJSON* weapons) {
         }
 
         cJSON* ammo_reserve = cJSON_GetObjectItem(weapon, "ammo_reserve");
-        if (ammo_reserve != NULL || cJSON_IsString(ammo_reserve)) {
-            printf("ammo_reserve: %d\n", ammo_reserve->valueint);
+        if (ammo_reserve != NULL && cJSON_IsString(ammo_reserve)) {
+            printf("\tammo_reserve: %d\n", ammo_reserve->valueint);
             gameData.player.weapons.weaponArray[i].ammo_reserve = ammo_reserve->valueint;
         }
         else
@@ -142,7 +155,7 @@ void parseWeapons(const cJSON* weapons) {
             gameData.player.weapons.weaponArray[i].ammo_reserve = 0;
         }
 
-        printf("%d weapon = %s\n", i, name->valuestring);
+        /*printf("%d weapon = %s\n", i, name->valuestring);
         printf("-name: %s,\nhasSkin: % d,\ntype : %s,\nisActive : %d\nammo_clip : %d,\nammo_clip_max : %d,\nammo_reserve : %d\n",
             gameData.player.weapons.weaponArray[i].name,
             gameData.player.weapons.weaponArray[i].hasSkin,
@@ -151,8 +164,9 @@ void parseWeapons(const cJSON* weapons) {
             gameData.player.weapons.weaponArray[i].ammo_clip,
             gameData.player.weapons.weaponArray[i].ammo_clip_max,
             gameData.player.weapons.weaponArray[i].ammo_reserve
-        );
+        );*/
     }
+    //gameData.player.weapons.count = count;
 }
 
 void parseJSON(const cJSON* root) {
@@ -166,16 +180,16 @@ void parseJSON(const cJSON* root) {
     {
         // Access the 'phase' object within 'map'
         cJSON* phase = cJSON_GetObjectItem(map, "phase");
-        if (phase != NULL || cJSON_IsString(phase)) {
+        if (phase != NULL && cJSON_IsString(phase)) {
             printf("phase: %s\n", phase->valuestring);
             const char* src = phase->valuestring;
             size_t length = strlen(src) + 1;
-            gameData.map.phase = malloc(length);
+            gameData.map.phase = (char*)malloc(length);
             strcpy_s(gameData.map.phase, length, phase->valuestring);
         }
         // Access the 'round' object within 'map'
         cJSON* round = cJSON_GetObjectItem(map, "round");
-        if (round != NULL || cJSON_IsNumber(round)) {
+        if (round != NULL && cJSON_IsNumber(round)) {
             printf("round: %d\n", round->valueint);
             gameData.map.round = round->valueint;
         }
@@ -190,20 +204,20 @@ void parseJSON(const cJSON* root) {
     {
         // Access the 'phase' object within 'round'
         cJSON* phase = cJSON_GetObjectItem(round, "phase");
-        if (phase != NULL || cJSON_IsString(phase)) {
+        if (phase != NULL && cJSON_IsString(phase)) {
             printf("phase: %s\n", phase->valuestring);
             const char* src = phase->valuestring;
             size_t length = strlen(src) + 1;
-            gameData.round.phase = malloc(length);
+            gameData.round.phase = (char*)malloc(length);
             strcpy_s(gameData.round.phase, length, phase->valuestring);
         }
         // Access the 'bomb' object within 'round'
         cJSON* bomb = cJSON_GetObjectItem(round, "bomb");
-        if (bomb != NULL || cJSON_IsString(bomb)) {
+        if (bomb != NULL && cJSON_IsString(bomb)) {
             printf("bomb: %s\n", bomb->valuestring);
             const char* src = bomb->valuestring;
             size_t length = strlen(src) + 1;
-            gameData.round.bomb = malloc(length);
+            gameData.round.bomb = (char*)malloc(length);
             strcpy_s(gameData.round.bomb, length, bomb->valuestring);
         }
     }
@@ -227,13 +241,13 @@ void parseJSON(const cJSON* root) {
             printf("name: %s\n", name->valuestring);
             const char* src = name->valuestring;
             size_t length = strlen(src) + 1;
-            gameData.player.name = malloc(length);
+            gameData.player.name = (char*)malloc(length);
             if (gameData.player.name != NULL) {
                 if (strcpy_s(gameData.player.name, length, src) != 0) {
                     // Error occurred during string copy
                     printf("Failed to copy name string.\n");
                     free(gameData.player.name);
-                    gameData.player.name = NULL;
+                    //gameData.player.name = NULL;
                 }
             }
             else {
@@ -254,13 +268,13 @@ void parseJSON(const cJSON* root) {
             printf("activity: %s\n", activity->valuestring);
             const char* src = activity->valuestring;
             size_t length = strlen(src) + 1;
-            gameData.player.activity = malloc(length);
+            gameData.player.activity = (char*)malloc(length);
             if (gameData.player.activity != NULL) {
                 if (strcpy_s(gameData.player.activity, length, src) != 0) {
                     // Error occurred during string copy
                     printf("Failed to copy activity string.\n");
                     free(gameData.player.activity);
-                    gameData.player.activity = NULL;
+                    //gameData.player.activity = NULL;
                 }
             }
             else {
@@ -330,7 +344,6 @@ void parseJSON(const cJSON* root) {
         }
     }
 }
-
 
 void FreeRequest(REQUEST* request)
 {
@@ -402,7 +415,6 @@ void* servermain(void *vargp)
             printf("\n\nend of data dump.\n");
 
             cJSON_Delete(root);
-
             printf("postd\n");
         }
         FreeRequest(request);

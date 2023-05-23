@@ -53,15 +53,14 @@ typedef enum weaponType {                //Type(isMelee, isUtility, isGun, isPri
 	BumpMine,     =  "Bump Mine",        //BUMP_MINE(false, false, false, false, false);
 } weaponType;
 #endif
-
 typedef struct {
-    char* phase; // warmup, live, intermission, gameover
-    int round;
+	char* phase; // warmup, live, intermission, gameover
+	int round;
 } Map;
 
 typedef struct {
-    char* phase;
-    char* bomb;
+	char* phase;
+	char* bomb;
 } Round;
 
 typedef struct {
@@ -76,34 +75,33 @@ typedef struct {
 
 typedef struct {
 	size_t count;
-	Weapon* weaponArray;
+	Weapon weaponArray[16];
 } Weapons;
 
 typedef struct {
-    char* name;
-    char* activity;
+	char* name;
+	char* activity;
 
-    struct {
-        int health;
-        int armor;
-        int burning;
-        int round_kills;
-        int round_killhs;
-    } state;
+	struct {
+		int health;
+		int armor;
+		int burning;
+		int round_kills;
+		int round_killhs;
+	} state;
 
-    struct {
-        int kills;
-        int deaths;
-        int mvps;
-    } match_stats;
+	struct {
+		int kills;
+		int deaths;
+		int mvps;
+	} match_stats;
 
 	Weapons weapons;
 } Player;
 
 typedef struct {
-    Map map;
-    Round round;
-    Player player;
+	Map map;
+	Round round;
+	Player player;
 } GameData;
-
 #endif // !DATA_H
