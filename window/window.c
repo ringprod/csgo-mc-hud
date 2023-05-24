@@ -118,7 +118,7 @@ void* raylib(void* vargp)
     int offset[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     int foodOffset[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-    int scaledResolution = 4;
+    int scaledResolution = 10;
 
     int health = 20;
     int food = 20;

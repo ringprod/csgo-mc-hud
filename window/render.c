@@ -7,7 +7,7 @@ extern GameData gameData;
 
 int hotbarX(int index, int sr, int hotbarWidth)
 {
-    return (GetScreenWidth() / sr / 2 + (index * 20 + 4) - hotbarWidth / 2) * sr;
+    return (GetScreenWidth() / sr / 2 + (index * 20 + 3) - hotbarWidth / 2) * sr;
 }
 
 void renderHotbar(int sr, long* updateCounter, long* healthUpdateCounter, long* lastSystemTime, int health, int* lastHealth, int* playerHealth, int foodLevel, int saturation, int armor, float xpProgress, int* offset, int* foodOffset, int* shouldPlaySound, Texture2D widgets, Texture2D icons, Texture2D bomb, Texture2D *crossbow, Texture2D *bow, Texture2D knife, Texture2D barrier)
@@ -360,7 +360,7 @@ void renderHotbar(int sr, long* updateCounter, long* healthUpdateCounter, long* 
     {
         Weapon currentWeapon = playerWeapons.weaponArray[itemIndex];
 
-        int hotbarY = (GetScreenHeight() / sr - (16 - 3) - 6) * sr;
+        int hotbarY = (GetScreenHeight() / sr - (16 - 3) - 6) * sr + 1;
 
         if (strcmp(currentWeapon.type, "Knife") == 0)
         {
@@ -369,7 +369,7 @@ void renderHotbar(int sr, long* updateCounter, long* healthUpdateCounter, long* 
             Rectangle knifeDestRect = {
                 hotbarX(slotOffset, sr, hotbarWidth),
                 hotbarY,
-                14 * sr,
+                16 * sr,
                 16 * sr
             };
             DrawTexturePro(knife, knifeRect, knifeDestRect, origin, 0, WHITE);
@@ -388,7 +388,7 @@ void renderHotbar(int sr, long* updateCounter, long* healthUpdateCounter, long* 
     {
         Weapon currentWeapon = playerWeapons.weaponArray[itemIndex];
 
-        int hotbarY = (GetScreenHeight() / sr - (16 - 3) - 6) * sr;
+        int hotbarY = (GetScreenHeight() / sr - (16 - 3) - 6) * sr + 1;
 
         if (strcmp(currentWeapon.type, "Rifle") == 0 ||
             strcmp(currentWeapon.type, "Submachine Gun") == 0 ||
@@ -397,14 +397,14 @@ void renderHotbar(int sr, long* updateCounter, long* healthUpdateCounter, long* 
             strcmp(currentWeapon.type, "Shotgun") == 0)
         {
             printf("crossbow texture displayed\n");
-            Rectangle crossbowRect = { 0, 0, crossbow[4].width, crossbow[4].height };
+            Rectangle crossbowRect = { 0, 0, crossbow[3].width, crossbow[3].height };
             Rectangle crossbowDestRect = {
                 hotbarX(slotOffset, sr, hotbarWidth),
                 hotbarY,
-                14 * sr,
+                16 * sr,
                 16 * sr
             };
-            DrawTexturePro(crossbow[4], crossbowRect, crossbowDestRect, origin, 0, WHITE);
+            DrawTexturePro(crossbow[3], crossbowRect, crossbowDestRect, origin, 0, WHITE);
             slotOffset++;
             break;
         }
@@ -420,7 +420,7 @@ void renderHotbar(int sr, long* updateCounter, long* healthUpdateCounter, long* 
     {
         Weapon currentWeapon = playerWeapons.weaponArray[itemIndex];
 
-        int hotbarY = (GetScreenHeight() / sr - (16 - 3) - 6) * sr;
+        int hotbarY = (GetScreenHeight() / sr - (16 - 3) - 6) * sr + 1;
 
         if (strcmp(currentWeapon.type, "Pistol") == 0)
         {
@@ -429,7 +429,7 @@ void renderHotbar(int sr, long* updateCounter, long* healthUpdateCounter, long* 
             Rectangle bowDestRect = {
                 hotbarX(slotOffset, sr, hotbarWidth),
                 hotbarY,
-                14 * sr,
+                16 * sr,
                 16 * sr
             };
             DrawTexturePro(bow[3], bowRect, bowDestRect, origin, 0, WHITE);
@@ -455,7 +455,7 @@ void renderHotbar(int sr, long* updateCounter, long* healthUpdateCounter, long* 
             printf("bomb texture displayed\n");
             Rectangle bombRect = { 16, 1, bomb.width - 32, bomb.height - 2 };
             Rectangle bombDestRect = {
-                hotbarX(slotOffset, sr, hotbarWidth),
+                (GetScreenWidth() / sr / 2 + (itemIndex * 20 + 4) - hotbarWidth / 2)* sr,
                 hotbarY + 1 + (sr * 0.3),
                 14 * sr,
                 16 * sr - (sr * 0.6)
