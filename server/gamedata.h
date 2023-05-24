@@ -92,8 +92,10 @@ typedef struct {
 
 	struct {
 		int kills;
+		int assists;
 		int deaths;
 		int mvps;
+		int score;
 	} match_stats;
 
 	Weapons weapons;

@@ -321,17 +321,80 @@ void parseJSON(const cJSON* root) {
                 printf("round_killhs: %d\n", round_killhs->valueint);
                 gameData.player.state.round_killhs = round_killhs->valueint;
             }
+        }
 
-            // Access the 'weapons' object within 'player'
-            cJSON* weapons = cJSON_GetObjectItem(player, "weapons");
-            if (weapons == NULL || !cJSON_IsObject(weapons)) {
-                printf("Failed to retrieve 'weapons' object from JSON.\n");
+        // Access the 'match_stats' object within 'player'
+        cJSON* match_stats = cJSON_GetObjectItem(player, "match_stats");
+        if (match_stats == NULL || !cJSON_IsObject(match_stats)) {
+            printf("Failed to retrieve 'match_stats' object from JSON.\n");
+        }
+        else
+        {
+            // Access the 'kills' values within 'match_Stats'
+            cJSON* kills = cJSON_GetObjectItem(match_stats, "kills");
+            if (kills != NULL && cJSON_IsNumber(kills)) {
+                printf("kills: %d\n", kills->valueint);
+                gameData.player.match_stats.kills = kills->valueint;
             }
             else
             {
-                printf("WEAPONS COUNT: %d\n", cJSON_GetArraySize(weapons));
-                parseWeapons(weapons);
+                gameData.player.match_stats.kills = 0;
             }
+
+            // Access the 'assists' values within 'match_Stats'
+            cJSON* assists = cJSON_GetObjectItem(match_stats, "assists");
+            if (assists != NULL && cJSON_IsNumber(assists)) {
+                printf("assists: %d\n", assists->valueint);
+                gameData.player.match_stats.assists = assists->valueint;
+            }
+            else
+            {
+                gameData.player.match_stats.assists = 0;
+            }
+            
+            // Access the 'deaths' values within 'match_Stats'
+            cJSON* deaths = cJSON_GetObjectItem(match_stats, "deaths");
+            if (deaths != NULL && cJSON_IsNumber(deaths)) {
+                printf("deaths: %d\n", deaths->valueint);
+                gameData.player.match_stats.deaths = deaths->valueint;
+            }
+            else
+            {
+                gameData.player.match_stats.deaths = 0;
+            }
+            
+            // Access the 'mvps' values within 'match_Stats'
+            cJSON* mvps = cJSON_GetObjectItem(match_stats, "mvps");
+            if (mvps != NULL && cJSON_IsNumber(mvps)) {
+                printf("mvps: %d\n", mvps->valueint);
+                gameData.player.match_stats.mvps = mvps->valueint;
+            }
+            else
+            {
+                gameData.player.match_stats.mvps = 0;
+            }
+            
+            // Access the 'score' values within 'match_Stats'
+            cJSON* score = cJSON_GetObjectItem(match_stats, "score");
+            if (score != NULL && cJSON_IsNumber(score)) {
+                printf("score: %d\n", score->valueint);
+                gameData.player.match_stats.score = score->valueint;
+            }
+            else
+            {
+                gameData.player.match_stats.score = 0;
+            }
+        }
+
+        // Access the 'weapons' object within 'player'
+        cJSON* weapons = cJSON_GetObjectItem(player, "weapons");
+        if (weapons == NULL || !cJSON_IsObject(weapons)) {
+            printf("Failed to retrieve 'weapons' object from JSON.\n");
+        }
+        else
+        {
+            printf("WEAPONS COUNT: %d\n", cJSON_GetArraySize(weapons));
+            parseWeapons(weapons);
         }
     }
 }

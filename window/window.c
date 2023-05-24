@@ -82,12 +82,14 @@ void getAsyncInput(bool* isKeyPressed, int* debugX, int* debugY, float* var)
 void displayGameData() {
     //DrawText("Congrats! You created your first window!", 0, 0, 20, LIGHTGRAY);
     DrawRectangle(0, 0, 900, 900, (Color){ 0, 0, 0, 200 });
-    DrawText(TextFormat("Map:\nPhase: %s\nRound: %d\nRound:\nPhase: %s\nBomb: %s\nPlayer:\nName: %s\nActivity: %s\nState:\nHealth: %d\nArmor: %d\nBurning: %d\nRound Kills: %d\nRound Kill Headshots: %d\nMatch Stats:\nKills: %d\nDeaths: %d\nMVPS: %d\nWeapons:\nCount: %I64d",
+    DrawText(TextFormat("Map:\nPhase: %s\nRound: %d\nRound:\nPhase: %s\nBomb: %s\nPlayer:\nName: %s\nActivity: %s\nState:\nHealth: %d\nArmor: %d\nBurning: %d\nRound Kills: %d\nRound Kill Headshots: %d\nMatch Stats:\nKills: %d\nAssists: %d\nDeaths: %d\nMVPS: %d\nScore: %d\nWeapons:\nCount: %I64d",
         gameData.map.phase, gameData.map.round,
         gameData.round.phase, gameData.round.bomb,
         gameData.player.name, gameData.player.activity,
         gameData.player.state.health, gameData.player.state.armor, gameData.player.state.burning, gameData.player.state.round_kills, gameData.player.state.round_killhs,
-        gameData.player.match_stats.kills, gameData.player.match_stats.deaths, gameData.player.match_stats.mvps, gameData.player.weapons.count), 10, 10, 10, LIGHTGRAY);
+        gameData.player.match_stats.kills, gameData.player.match_stats.assists, gameData.player.match_stats.deaths, gameData.player.match_stats.mvps, gameData.player.match_stats.score,
+        gameData.player.weapons.count
+    ), 10, 10, 10, LIGHTGRAY);
 
     for (size_t i = 0; i < gameData.player.weapons.count; i++) {
         Weapon weapon = gameData.player.weapons.weaponArray[i];
@@ -124,8 +126,8 @@ void* raylib(void* vargp)
     int food = 20;
     int armor = 0;
     int saturation = 1;
-    float xpProgress = 0.0f;
     int xpLevel = 0;
+    float xpProgress = 0.0f;
 
     bool isKeyPressed = false;
 
@@ -228,6 +230,7 @@ void* raylib(void* vargp)
         health = gameData.player.state.health / 5;
         armor = gameData.player.state.armor / 5;
         xpLevel = gameData.player.match_stats.kills;
+        xpProgress = (float)(gameData.player.state.round_kills + gameData.player.state.round_killhs) / 5.0f;
 
         if (gameData.player.state.health > 0 && health == 0)
             health = 1;
@@ -281,22 +284,21 @@ void* raylib(void* vargp)
                 shouldPlaySound = 0;
             }
             renderHotbar(scaledResolution, &updateCounter, &healthUpdateCounter, &lastSystemTime, health, &lastHealth, &playerHealth, food, saturation, armor, xpProgress, offset, foodOffset, &shouldPlaySound, widgets, icons, bomb, crossbow, bow, knife, barrier);
+
+            if (xpLevel > 0)
+            {
+                char s[20];
+                int textSize = 5;
+
+                sprintf(s, "%d", xpLevel);
+
+                int centerWidth = GetScreenWidth() / 2;
+                int hotbarHeight = (GetScreenHeight() / scaledResolution - (31 + 4)) * scaledResolution;
+
+                drawOutlinedMCText(font, s, centerWidth - (getMCTextWidth(s, textSize, font, charWidths) / 2 * scaledResolution) - 1 * scaledResolution, hotbarHeight, textSize, 1, YELLOW, chars, charWidths, scaledResolution);
+            }
         }
 
-        if (gameData.map.phase != NULL && xpLevel > 0 && !strcmp(gameData.map.phase, "live"))
-        {
-            //char charList[] = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
-            char s[20];
-            int textSize = 5;
-
-            sprintf(s, "%d", xpLevel);
-
-            int centerWidth = GetScreenWidth() / 2;
-            int hotbarHeight = (GetScreenHeight() / scaledResolution - (31 + 4)) * scaledResolution;
-
-            //int offset = (strlen(s) == 1) ? 3 : strlen(s) * 4;
-            drawOutlinedMCText(font, s, centerWidth - (getMCTextWidth(s, textSize, font, charWidths) / 2 * scaledResolution) - 1 * scaledResolution, hotbarHeight, textSize, 1, YELLOW, chars, charWidths, scaledResolution);
-        }
         //DrawFPS(10, 10);
 
         EndDrawing();

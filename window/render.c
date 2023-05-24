@@ -378,7 +378,7 @@ void renderHotbar(int sr, long* updateCounter, long* healthUpdateCounter, long* 
         }
         else
         {
-            printf("item index %d: no texture displayed %s\n", itemIndex, currentWeapon.type);
+            //printf("item index %d: no texture displayed %s\n", itemIndex, currentWeapon.type);
         }
 
     }
@@ -410,7 +410,7 @@ void renderHotbar(int sr, long* updateCounter, long* healthUpdateCounter, long* 
         }
         else
         {
-            printf("item index %d: no texture displayed %s\n", itemIndex, currentWeapon.type);
+            //printf("item index %d: no texture displayed %s\n", itemIndex, currentWeapon.type);
         }
 
     }
@@ -438,7 +438,7 @@ void renderHotbar(int sr, long* updateCounter, long* healthUpdateCounter, long* 
         }
         else
         {
-            printf("item index %d: no texture displayed %s\n", itemIndex, currentWeapon.type);
+            //printf("item index %d: no texture displayed %s\n", itemIndex, currentWeapon.type);
         }
 
     }
@@ -455,7 +455,7 @@ void renderHotbar(int sr, long* updateCounter, long* healthUpdateCounter, long* 
             printf("bomb texture displayed\n");
             Rectangle bombRect = { 16, 1, bomb.width - 32, bomb.height - 2 };
             Rectangle bombDestRect = {
-                (GetScreenWidth() / sr / 2 + (itemIndex * 20 + 4) - hotbarWidth / 2)* sr,
+                (GetScreenWidth() / sr / 2 + (slotOffset * 20 + 4) - hotbarWidth / 2)* sr,
                 hotbarY + 1 + (sr * 0.3),
                 14 * sr,
                 16 * sr - (sr * 0.6)
@@ -466,7 +466,7 @@ void renderHotbar(int sr, long* updateCounter, long* healthUpdateCounter, long* 
         }
         else
         {
-            printf("item index %d: no texture displayed %s\n", itemIndex, currentWeapon.type);
+            //printf("item index %d: no texture displayed %s\n", itemIndex, currentWeapon.type);
         }
 
     }
