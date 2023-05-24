@@ -1,7 +1,16 @@
 #include "../include/raylib.h"
 #include "render.h"
+#include "../server/gamedata.h"
+#include <stdio.h>
 
-void renderHotbar(int sr, long* updateCounter, long* healthUpdateCounter, long* lastSystemTime, int health, int* lastHealth, int* playerHealth, int foodLevel, int saturation, int armor, float xpProgress, int* offset, int* foodOffset, int* shouldPlaySound, Texture2D widgets, Texture2D icons, Texture2D bomb)
+extern GameData gameData;
+
+int hotbarX(int index, int sr, int hotbarWidth)
+{
+    return (GetScreenWidth() / sr / 2 + (index * 20 + 4) - hotbarWidth / 2) * sr;
+}
+
+void renderHotbar(int sr, long* updateCounter, long* healthUpdateCounter, long* lastSystemTime, int health, int* lastHealth, int* playerHealth, int foodLevel, int saturation, int armor, float xpProgress, int* offset, int* foodOffset, int* shouldPlaySound, Texture2D widgets, Texture2D icons, Texture2D bomb, Texture2D *crossbow, Texture2D *bow, Texture2D knife, Texture2D barrier)
 {
     int centerX = GetScreenWidth() / 2;
     int bottomY = GetScreenHeight();
@@ -338,26 +347,197 @@ void renderHotbar(int sr, long* updateCounter, long* healthUpdateCounter, long* 
     DrawTexturePro(icons, crosshair, crosshairDestRect, origin, 0, WHITE);
 
     // hotbar items
-    for (int l = 0; l < 9; ++l)
+
+    Weapons playerWeapons;
+    memcpy(&playerWeapons, &gameData.player.weapons, sizeof(Weapons));
+
+    printf("RENDER HAS DATA!!! :: COUNT: %d, FIRST NAME: %s\n", playerWeapons.count, playerWeapons.weaponArray[0].name);
+
+    int slotOffset = 0;
+
+    // knife
+    for (int itemIndex = 0; itemIndex < playerWeapons.count; itemIndex++)
     {
-        int i1 = (GetScreenWidth() / sr / 2 + (l * 20 + 4) - hotbarWidth / 2) * sr;
-        int j1 = (GetScreenHeight() / sr - (16 - 3) - 6) * sr;
-        //renderHotbarItem(i1, j1, partialTicks/*, entityplayer, entityplayer.inventory.mainInventory.get(l)*/ );
-        Rectangle item = { 16, 1, bomb.width -32, bomb.height-2 };
-        Rectangle itemDestRect = {
-            i1,
-            j1+1+(sr*0.3),
-            14 * sr,
-            16 * sr - (sr*0.6)
-        };
-        DrawTexturePro(bomb, item, itemDestRect, origin, 0, WHITE);
+        Weapon currentWeapon = playerWeapons.weaponArray[itemIndex];
+
+        int hotbarY = (GetScreenHeight() / sr - (16 - 3) - 6) * sr;
+
+        if (strcmp(currentWeapon.type, "Knife") == 0)
+        {
+            printf("knife texture displayed\n");
+            Rectangle knifeRect = { 0, 0, knife.width, knife.height };
+            Rectangle knifeDestRect = {
+                hotbarX(slotOffset, sr, hotbarWidth),
+                hotbarY,
+                14 * sr,
+                16 * sr
+            };
+            DrawTexturePro(knife, knifeRect, knifeDestRect, origin, 0, WHITE);
+            slotOffset++;
+            break;
+        }
+        else
+        {
+            printf("item index %d: no texture displayed %s\n", itemIndex, currentWeapon.type);
+        }
+
     }
+
+    // rilfe
+    for (int itemIndex = 0; itemIndex < playerWeapons.count; itemIndex++)
+    {
+        Weapon currentWeapon = playerWeapons.weaponArray[itemIndex];
+
+        int hotbarY = (GetScreenHeight() / sr - (16 - 3) - 6) * sr;
+
+        if (strcmp(currentWeapon.type, "Rifle") == 0 ||
+            strcmp(currentWeapon.type, "Submachine Gun") == 0 ||
+            strcmp(currentWeapon.type, "Machine Gun") == 0 ||
+            strcmp(currentWeapon.type, "SniperRifle") == 0 ||
+            strcmp(currentWeapon.type, "Shotgun") == 0)
+        {
+            printf("crossbow texture displayed\n");
+            Rectangle crossbowRect = { 0, 0, crossbow[4].width, crossbow[4].height };
+            Rectangle crossbowDestRect = {
+                hotbarX(slotOffset, sr, hotbarWidth),
+                hotbarY,
+                14 * sr,
+                16 * sr
+            };
+            DrawTexturePro(crossbow[4], crossbowRect, crossbowDestRect, origin, 0, WHITE);
+            slotOffset++;
+            break;
+        }
+        else
+        {
+            printf("item index %d: no texture displayed %s\n", itemIndex, currentWeapon.type);
+        }
+
+    }
+
+    // pistol
+    for (int itemIndex = 0; itemIndex < playerWeapons.count; itemIndex++)
+    {
+        Weapon currentWeapon = playerWeapons.weaponArray[itemIndex];
+
+        int hotbarY = (GetScreenHeight() / sr - (16 - 3) - 6) * sr;
+
+        if (strcmp(currentWeapon.type, "Pistol") == 0)
+        {
+            printf("bow texture displayed\n");
+            Rectangle bowRect = { 0, 0, bow[3].width, bow[3].height };
+            Rectangle bowDestRect = {
+                hotbarX(slotOffset, sr, hotbarWidth),
+                hotbarY,
+                14 * sr,
+                16 * sr
+            };
+            DrawTexturePro(bow[3], bowRect, bowDestRect, origin, 0, WHITE);
+            slotOffset++;
+            break;
+        }
+        else
+        {
+            printf("item index %d: no texture displayed %s\n", itemIndex, currentWeapon.type);
+        }
+
+    }
+
+    // bomb
+    for (int itemIndex = 0; itemIndex < playerWeapons.count; itemIndex++)
+    {
+        Weapon currentWeapon = playerWeapons.weaponArray[itemIndex];
+
+        int hotbarY = (GetScreenHeight() / sr - (16 - 3) - 6) * sr;
+
+        if (strcmp(currentWeapon.type, "C4") == 0)
+        {
+            printf("bomb texture displayed\n");
+            Rectangle bombRect = { 16, 1, bomb.width - 32, bomb.height - 2 };
+            Rectangle bombDestRect = {
+                hotbarX(slotOffset, sr, hotbarWidth),
+                hotbarY + 1 + (sr * 0.3),
+                14 * sr,
+                16 * sr - (sr * 0.6)
+            };
+            DrawTexturePro(bomb, bombRect, bombDestRect, origin, 0, WHITE);
+            slotOffset++;
+            break;
+        }
+        else
+        {
+            printf("item index %d: no texture displayed %s\n", itemIndex, currentWeapon.type);
+        }
+
+    }
+
+
+#if 0
+    int slotOffset = 0;
+    bool hasPrimaryWeapon = false;
+
+    for (int itemIndex = 0; itemIndex < playerWeapons.count; itemIndex++)
+    {
+        Weapon currentWeapon = playerWeapons.weaponArray[itemIndex];
+
+        int hotbarY = (GetScreenHeight() / sr - (16 - 3) - 6) * sr;
+
+        if (strcmp(currentWeapon.type, "Knife") == 0)
+        {
+            printf("knife texture displayed\n");
+            Rectangle knifeRect = { 0, 0, knife.width, knife.height };
+            Rectangle knifeDestRect = {
+                hotbarX(slotOffset, sr, hotbarWidth),
+                hotbarY,
+                14 * sr,
+                16 * sr
+            };
+            DrawTexturePro(knife, knifeRect, knifeDestRect, origin, 0, WHITE);
+            slotOffset++;
+        }
+        else if (strcmp(currentWeapon.type, "Rifle") == 0 ||
+            strcmp(currentWeapon.type, "Submachine Gun") == 0 ||
+            strcmp(currentWeapon.type, "Machine Gun") == 0 ||
+            strcmp(currentWeapon.type, "SniperRifle") == 0 ||
+            strcmp(currentWeapon.type, "Shotgun") == 0)
+        {
+            printf("crossbow texture displayed\n");
+            Rectangle crossbowRect = { 0, 0, crossbow[4].width, crossbow[4].height};
+            Rectangle crossbowDestRect = {
+                hotbarX(slotOffset, sr, hotbarWidth),
+                hotbarY,
+                14 * sr,
+                16 * sr
+            };
+            DrawTexturePro(crossbow[4], crossbowRect, crossbowDestRect, origin, 0, WHITE);
+            slotOffset++;
+        }
+        else if (strcmp(currentWeapon.type, "Pistol") == 0)
+        {
+            printf("bow texture displayed\n");
+            Rectangle bowRect = { 0, 0, bow[3].width, bow[3].height };
+            Rectangle bowDestRect = {
+                hotbarX(slotOffset, sr, hotbarWidth),
+                hotbarY,
+                14 * sr,
+                16 * sr
+            };
+            DrawTexturePro(bow[3], bowRect, bowDestRect, origin, 0, WHITE);
+            slotOffset++;
+        }
+        else
+        {
+            printf("item index %d: no texture displayed %s\n", itemIndex, currentWeapon.type);
+        }
+
+    }
+#endif
 }
 
-void renderHotbarItem(int hotbarX, int hotbarY, float elapsedFrameTime/*, EntityPlayer player, ItemStack stack*/)
-{
-    // todo
-}
+//void renderHotbarItem(int hotbarX, int hotbarY, float elapsedFrameTime/*, EntityPlayer player, ItemStack stack*/)
+//{
+    // todo if i want to animatae the item coming into the inventory
+//}
 
 #if 0
 // minecraft gui

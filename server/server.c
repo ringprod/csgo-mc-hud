@@ -52,26 +52,14 @@ void printGameData() {
 }
 
 void parseWeapons(const cJSON* weapons) {
-    //free(gameData.player.weapons.weaponArray);
-    //gameData.player.weapons.count = 0;
-
     size_t count = cJSON_GetArraySize(weapons);
-    //gameData.player.weapons.weaponArray = (Weapon*)malloc(sizeof(Weapon) * count);
+
     printf("\n\nParseWeapons\nweaponArray = %I64d\n", count);
     gameData.player.weapons.count = count;
 
     for (int i = 0; i < count; i++) {
         cJSON* weapon = cJSON_GetArrayItem(weapons, i);
         printf("weapon: %d\n", i);
-
-        /*cJSON* name = cJSON_GetObjectItem(weapon, "name");
-        if (name != NULL || cJSON_IsString(name)) {
-            printf("name: %s\n", name->valuestring);
-            const char* src = name->valuestring;
-            size_t length = strlen(src) + 1;
-            gameData.player.weapons.weaponArray[i].name = malloc(length);
-            strcpy_s(gameData.player.weapons.weaponArray[i].name, length, name->valuestring);
-        }*/
         cJSON* name = cJSON_GetObjectItem(weapon, "name");
         if (name != NULL && cJSON_IsString(name)) {
             printf("\tname: %s\n", name->valuestring);
@@ -154,19 +142,7 @@ void parseWeapons(const cJSON* weapons) {
         {
             gameData.player.weapons.weaponArray[i].ammo_reserve = 0;
         }
-
-        /*printf("%d weapon = %s\n", i, name->valuestring);
-        printf("-name: %s,\nhasSkin: % d,\ntype : %s,\nisActive : %d\nammo_clip : %d,\nammo_clip_max : %d,\nammo_reserve : %d\n",
-            gameData.player.weapons.weaponArray[i].name,
-            gameData.player.weapons.weaponArray[i].hasSkin,
-            gameData.player.weapons.weaponArray[i].type,
-            gameData.player.weapons.weaponArray[i].isActive,
-            gameData.player.weapons.weaponArray[i].ammo_clip,
-            gameData.player.weapons.weaponArray[i].ammo_clip_max,
-            gameData.player.weapons.weaponArray[i].ammo_reserve
-        );*/
     }
-    //gameData.player.weapons.count = count;
 }
 
 void parseJSON(const cJSON* root) {
@@ -175,6 +151,8 @@ void parseJSON(const cJSON* root) {
     cJSON* map = cJSON_GetObjectItem(root, "map");
     if (map == NULL || !cJSON_IsObject(map)) {
         printf("Failed to retrieve 'map' object from JSON.\n");
+        gameData.map.phase = NULL;
+        gameData.map.round = 0;
     }
     else
     {
@@ -199,6 +177,8 @@ void parseJSON(const cJSON* root) {
     cJSON* round = cJSON_GetObjectItem(root, "round");
     if (round == NULL || !cJSON_IsObject(round)) {
         printf("Failed to retrieve 'round' object from JSON.\n");
+        gameData.round.bomb = NULL;
+        gameData.round.phase = NULL;
     }
     else
     {
@@ -226,6 +206,17 @@ void parseJSON(const cJSON* root) {
     cJSON* player = cJSON_GetObjectItem(root, "player");
     if (player == NULL || !cJSON_IsObject(player)) {
         printf("Failed to retrieve 'player' object from JSON.\n");
+        gameData.player.activity = NULL;
+        gameData.player.match_stats.deaths = 0;
+        gameData.player.match_stats.kills = 0;
+        gameData.player.match_stats.mvps = 0;
+        gameData.player.name = NULL;
+        gameData.player.state.armor = 0;
+        gameData.player.state.health = 100;
+        gameData.player.state.burning = 0;
+        gameData.player.state.round_killhs = 0;
+        gameData.player.state.round_kills = 0;
+        gameData.player.weapons.count = 0;
     }
     else
     {
